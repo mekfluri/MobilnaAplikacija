@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/blabla"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".Registracija">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraintLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_anchor="@+id/constraintLayout"
+        app:layout_anchorGravity="center">
+
+        <EditText
+            android:id="@+id/sifraTV"
+            android:layout_width="348dp"
+            android:layout_height="66dp"
+            android:layout_marginStart="36dp"
+            android:layout_marginTop="14dp"
+            android:layout_marginEnd="33dp"
+            android:ems="10"
+            android:hint="Unesite šifru"
+            android:inputType="textPassword"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.333"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.167" />
+
+        <EditText
+            android:id="@+id/telefonTV"
+            android:layout_width="353dp"
+            android:layout_height="66dp"
+            android:layout_marginStart="31dp"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="32dp"
+            android:ems="10"
+            android:hint="Unesite broj telefona "
+            android:inputType="phone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/izaberiSlikuBtn"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:text="Izaberi sliku"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.1"
+            app:layout_constraintHorizontal_bias="0.512"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.653"
+            app:layout_constraintWidth_percent="0.8" />
+
+        <Button
+            android:id="@+id/registracijaBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Registruj se"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.838" />
+
+        <EditText
+            android:id="@+id/korisnickoTV"
+            android:layout_width="336dp"
+            android:layout_height="48dp"
+            android:ems="10"
+            android:hint="Korisnicko ime"
+            android:inputType="textPersonName"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.493"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.073" />
+
+        <EditText
+            android:id="@+id/imeTV"
+            android:layout_width="340dp"
+            android:layout_height="58dp"
+            android:ems="10"
+            android:hint="Ime"
+            android:inputType="textPersonName"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.419"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.334" />
+
+        <EditText
+            android:id="@+id/prezimeTV"
+            android:layout_width="359dp"
+            android:layout_height="46dp"
+            android:ems="10"
+            android:hint="Prezime"
+            android:inputType="textPersonName"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.442"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.436" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

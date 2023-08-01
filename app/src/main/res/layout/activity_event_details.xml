@@ -1,0 +1,61 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/textViewEventType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Event Type"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/textViewDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Date"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+    <TextView
+        android:id="@+id/textViewTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Time"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+    <TextView
+        android:id="@+id/textViewDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Description"
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+        android:textStyle="italic" />
+
+    <TextView
+        android:id="@+id/textViewUsers"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Users who bought tickets:"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:layout_marginTop="16dp" />
+
+    <TextView
+        android:id="@+id/textViewUserList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+
+    <Button
+        android:id="@+id/btnBuyTicket"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Buy Ticket"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp" />
+
+</LinearLayout>
