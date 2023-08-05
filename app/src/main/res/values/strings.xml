@@ -23,4 +23,11 @@
 
 
     <string name="profile_picture">Profile Picture</string>
+    <string name="dogadjaji">Dogadjaji:</string>
+
+    <plurals name="numberOfReviews">
+        <item quantity="one">1 Review</item>
+        <item quantity="other">%d Reviews</item>
+    </plurals>
+
 </resources>

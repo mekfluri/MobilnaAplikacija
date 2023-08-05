@@ -1,0 +1,44 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Submit Review"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textStyle="bold" />
+
+    <!-- Rating Bar -->
+    <RatingBar
+        android:id="@+id/ratingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:numStars="5"
+        android:stepSize="1"
+        android:contentDescription="Event Rating: 4.5 stars out of 5" />
+
+    <!-- Review Comment -->
+    <EditText
+        android:id="@+id/editTextComment"
+        android:layout_width="385dp"
+        android:layout_height="55dp"
+        android:layout_marginTop="16dp"
+        android:hint="Write your review here..."
+        android:maxLines="5" />
+
+    <!-- Submit Button -->
+    <Button
+        android:id="@+id/submitReviewBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:text="Submit Review" />
+
+</LinearLayout>

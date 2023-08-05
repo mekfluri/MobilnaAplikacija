@@ -3,6 +3,12 @@
     <string-array name="event_types">
         <item>zurka</item>
         <item>predstava</item>
+        <item>humanitarna manifestacija</item>
+        <item>sportski dogadjaji i utakmice</item>
+        <item>koncert</item>
+        <item>izlzbe proizvoda i sajmovi</item>
+        <item>konferencije i seminari</item>
+        <item>filmske premijere</item>
 
     </string-array>
 </resources>

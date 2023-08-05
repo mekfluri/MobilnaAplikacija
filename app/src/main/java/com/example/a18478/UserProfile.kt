@@ -19,6 +19,15 @@ class UserProfile : AppCompatActivity() {
                 .replace(R.id.containerUserSchedule, fragment)
                 .commit()
         }
+        val btnGoToPretragaDogadjaja: Button = findViewById(R.id.btnGoToPretragaDogadjaja)
+
+        // Set a click listener for the button
+        btnGoToPretragaDogadjaja.setOnClickListener {
+            // Create an Intent to navigate to the PretragaDogadjaja activity
+            val intent = Intent(this, PretragaDogadjaja::class.java)
+            startActivity(intent)
+        }
+
 
         // Set click listener for the logout button
         val btnLogout: Button = findViewById(R.id.btnLogout)

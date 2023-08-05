@@ -4,11 +4,11 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.a18478.databinding.ActivityEventDetailsBinding
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 
 class EventDetailsActivity : AppCompatActivity() {
 
@@ -17,11 +17,21 @@ class EventDetailsActivity : AppCompatActivity() {
         const val EXTRA_EVENT_ID = "extra_event_id"
     }
 
+    private val reviewsList: MutableList<Review> = mutableListOf()
     private lateinit var binding: ActivityEventDetailsBinding
     private var event: Event? = null
     private lateinit var eventId: String
     private val eventsRef: DatabaseReference = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app")
         .getReference("events")
+    private val reviewsAdapter: ReviewAdapter by lazy {
+        ReviewAdapter(reviewsList)
+    }
+
+    // Define reviewsRef as a class-level property
+    private val reviewsRef: DatabaseReference by lazy {
+        FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app")
+            .getReference("events")
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,6 +43,12 @@ class EventDetailsActivity : AppCompatActivity() {
 
         if (event != null) {
             displayEventDetails()
+        }
+
+        // Setup RecyclerView for reviews
+        binding.reviewsRecyclerView.apply {
+            layoutManager = LinearLayoutManager(this@EventDetailsActivity)
+            adapter = reviewsAdapter
         }
 
         // Handle the ticket button click
@@ -49,26 +65,58 @@ class EventDetailsActivity : AppCompatActivity() {
             }
         }
 
-    }
+        val reviewBtn: Button = findViewById(R.id.reviewBtn)
+        reviewBtn.setOnClickListener {
+            // Create a new instance of ReviewSubmissionFragment
+            val reviewFragment = ReviewSubmissionFragment.newInstance(eventId)
 
-    private fun displayEventDetails() {
-        // Populate the XML views with event details
-        event?.let {
-            binding.textViewEventType.text = it.eventType
-            binding.textViewDate.text = it.date
-            binding.textViewTime.text = it.time
-            binding.textViewDescription.text = it.description
-
-            val userList = it.userList // Store userList in a local variable
-
-            // Fetch and display the list of users who have bought tickets for this event
-            fetchUsernames(userList) { usernamesMap ->
-                val usernames = userList.mapNotNull { userId -> usernamesMap[userId] }
-                val userListText = usernames.joinToString(", ")
-                binding.textViewUserList.text = userListText
-            }
+            // Replace the current fragment in the container with the new ReviewSubmissionFragment
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, reviewFragment)
+                .addToBackStack(null)
+                .commit()
         }
+
+        // Fetch and display reviews
+        fetchReviews(eventId)
     }
+
+    // Function to fetch reviews from Firebase Realtime Database
+    private fun fetchReviews(eventId: String) {
+        val reviewsRef = reviewsRef.child(eventId).child("recenzije")
+
+        reviewsRef.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                reviewsList.clear()
+
+                for (reviewSnapshot in snapshot.children) {
+                    val review = reviewSnapshot.getValue(Review::class.java)
+                    review?.let {
+                        reviewsList.add(it)
+                    }
+                }
+
+                // Calculate the average rating
+                val totalRating = reviewsList.sumByDouble { review -> review.rating.toDouble() }
+                val averageRating = if (reviewsList.isNotEmpty()) totalRating / reviewsList.size else 0.0
+
+                // Update the UI to display the average rating and number of reviews
+                binding.textViewAverageRating.text = String.format("%.2f", averageRating)
+                binding.textViewNumberOfReviews.text = resources.getQuantityString(
+                    R.plurals.numberOfReviews,
+                    reviewsList.size,
+                    reviewsList.size
+                )
+
+                reviewsAdapter.notifyDataSetChanged()
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("EventDetailsActivity", "Error fetching reviews: ${error.message}")
+            }
+        })
+    }
+
 
 
 
@@ -111,6 +159,24 @@ class EventDetailsActivity : AppCompatActivity() {
                 }
             }
     }
+     fun displayEventDetails() {
+        // Populate the XML views with event details
+        event?.let {
+            binding.textViewEventType.text = it.eventType
+            binding.textViewDate.text = it.date
+            binding.textViewTime.text = it.time
+            binding.textViewDescription.text = it.description
+
+            val userList = it.userList // Store userList in a local variable
+
+            // Fetch and display the list of users who have bought tickets for this event
+            fetchUsernames(userList) { usernamesMap ->
+                val usernames = userList.mapNotNull { userId -> usernamesMap[userId] }
+                val userListText = usernames.joinToString(", ")
+                binding.textViewUserList.text = userListText
+            }
+        }
+    }
 
 
 
@@ -147,4 +213,6 @@ class EventDetailsActivity : AppCompatActivity() {
             }
         }
     }
+
+
 }

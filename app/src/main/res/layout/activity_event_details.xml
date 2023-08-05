@@ -4,6 +4,28 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="16dp">
+    <TextView
+        android:id="@+id/textViewAverageRating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textColor="@android:color/black"
+        android:layout_marginTop="8dp"
+        android:text="Average Rating: 0.00"
+        android:layout_below="@id/textViewUserList"
+        />
+
+    <TextView
+        android:id="@+id/textViewNumberOfReviews"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="16sp"
+        android:textColor="@android:color/black"
+        android:layout_marginTop="4dp"
+        android:text="0 Reviews"
+        android:layout_below="@id/textViewAverageRating"
+        />
+
 
     <TextView
         android:id="@+id/textViewEventType"
@@ -45,7 +67,7 @@
 
     <TextView
         android:id="@+id/textViewUserList"
-        android:layout_width="wrap_content"
+        android:layout_width="42dp"
         android:layout_height="wrap_content"
         android:text=""
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
@@ -54,8 +76,27 @@
         android:id="@+id/btnBuyTicket"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Buy Ticket"
         android:layout_gravity="center_horizontal"
+        android:layout_marginTop="16dp"
+        android:text="Buy Ticket" />
+
+    <Button
+        android:id="@+id/reviewBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Dodaj recenziju" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/reviewsRecyclerView"
+        android:layout_width="wrap_content"
+        android:layout_height="7dp"
+        android:layout_marginTop="16dp" />
+
+    <!-- FrameLayout for ReviewSubmissionFragment -->
+    <FrameLayout
+        android:id="@+id/fragment_container"
+        android:layout_width="387dp"
+        android:layout_height="match_parent"
         android:layout_marginTop="16dp" />
 
 </LinearLayout>
