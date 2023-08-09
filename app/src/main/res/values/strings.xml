@@ -29,5 +29,6 @@
         <item quantity="one">1 Review</item>
         <item quantity="other">%d Reviews</item>
     </plurals>
+    <string name="title_activity_ranking">RankingActivity</string>
 
 </resources>

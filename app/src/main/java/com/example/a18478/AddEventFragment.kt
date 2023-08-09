@@ -1,5 +1,6 @@
 package com.example.a18478
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +9,11 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.a18478.databinding.FragmentAddEventBinding
 import com.google.android.gms.maps.model.LatLng
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.ValueEventListener
 
 class AddEventFragment : Fragment() {
 
@@ -48,21 +53,57 @@ class AddEventFragment : Fragment() {
             val date = binding.dateEditText.text.toString()
             val time = binding.timeEditText.text.toString()
             val description = binding.descriptionEditText.text.toString()
-
+            val currentUser = FirebaseAuth.getInstance().currentUser
+            val userId = currentUser?.uid
             // Save the event to the Realtime Database under the "events" node
             val eventsRef = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app").getReference("events")
             val eventKey = eventsRef.push().key
             eventKey?.let {
-                val event = Event(eventType, date, time, description, selectedLocation?.latitude ?: 0.0, selectedLocation?.longitude ?: 0.0)
+                val userId = FirebaseAuth.getInstance().currentUser?.uid // Get the current active user ID
+                val event = Event(eventType, date, time, description, selectedLocation?.latitude ?: 0.0, selectedLocation?.longitude ?: 0.0, userId ?: "")
+
                 eventsRef.child(it).setValue(event)
                     .addOnSuccessListener {
-                        Toast.makeText(requireContext(), "Event saved successfully", Toast.LENGTH_SHORT).show()
-                        // You can go back to the previous screen or perform any other actions here.
+                        Toast.makeText(requireContext(), "Dogadjaj sačuvan uspešno", Toast.LENGTH_SHORT).show()
+
+                        // Get the current active user ID
+                        val userId = FirebaseAuth.getInstance().currentUser?.uid
+
+                        // Update the points attribute of the current active user
+                        userId?.let { uid ->
+                            val userRef = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app").getReference("korisnici").child(uid)
+                            userRef.child("poeni").addListenerForSingleValueEvent(object :
+                                ValueEventListener {
+                                override fun onDataChange(snapshot: DataSnapshot) {
+                                    val currentPoints = snapshot.getValue(Int::class.java) ?: 0
+                                    val newPoints = currentPoints + 2
+                                    userRef.child("poeni").setValue(newPoints)
+                                        .addOnSuccessListener {
+                                            requireActivity().supportFragmentManager.beginTransaction().remove(this@AddEventFragment).commit()
+
+
+                                            val intent = Intent(requireContext(), MapsActivity::class.java)
+                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                                            startActivity(intent)
+                                            requireActivity().finish()
+                                               }
+                                        .addOnFailureListener {
+                                            Toast.makeText(requireContext(), "Greška u dodavanju poena", Toast.LENGTH_SHORT).show()
+                                        }
+                                }
+
+                                override fun onCancelled(error: DatabaseError) {
+                                    Toast.makeText(requireContext(), "Greška prilikom čuvanja poena", Toast.LENGTH_SHORT).show()
+                                }
+                            })
+                        }
                     }
                     .addOnFailureListener {
-                        Toast.makeText(requireContext(), "Failed to save event", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(requireContext(), "Greška prilikom čuvanja dogadjaja", Toast.LENGTH_SHORT).show()
                     }
+
             }
         }
     }
+
 }

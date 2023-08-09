@@ -167,14 +167,9 @@ class EventDetailsActivity : AppCompatActivity() {
             binding.textViewTime.text = it.time
             binding.textViewDescription.text = it.description
 
-            val userList = it.userList // Store userList in a local variable
 
-            // Fetch and display the list of users who have bought tickets for this event
-            fetchUsernames(userList) { usernamesMap ->
-                val usernames = userList.mapNotNull { userId -> usernamesMap[userId] }
-                val userListText = usernames.joinToString(", ")
-                binding.textViewUserList.text = userListText
-            }
+
+
         }
     }
 

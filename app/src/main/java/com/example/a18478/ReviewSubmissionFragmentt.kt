@@ -9,8 +9,7 @@ import android.widget.EditText
 import android.widget.RatingBar
 import androidx.fragment.app.Fragment
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -62,6 +61,7 @@ class ReviewSubmissionFragment : Fragment() {
                 try {
                     val reviewId = reviewsRef.push().key ?: return@launch
                     reviewsRef.child(reviewId).setValue(review).await()
+                    updatePointsAfterReview(userId)
 
                     // Review submitted successfully
                     Log.d("ReviewSubmissionFragment", "Review submitted successfully")
@@ -72,6 +72,8 @@ class ReviewSubmissionFragment : Fragment() {
                         // Refresh the event details screen to show the updated reviews
                         (activity as? EventDetailsActivity)?.displayEventDetails()
                     }
+                    closeFragment()
+
                 } catch (e: Exception) {
                     // Review submission failed
                     Log.e("ReviewSubmissionFragment", "Failed to submit review", e)
@@ -84,7 +86,32 @@ class ReviewSubmissionFragment : Fragment() {
             // You can display an error message to the user if required
         }
     }
+    private fun updatePointsAfterReview(userId: String) {
+        val userRef = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app")
+            .getReference("korisnici")
+            .child(userId)
 
+        userRef.child("poeni").addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val currentPoints = snapshot.getValue(Int::class.java) ?: 0
+                val newPoints = currentPoints + 1.5 // Adding 1.5 points for the review
+                userRef.child("poeni").setValue(newPoints)
+                    .addOnSuccessListener {
+                        // Points updated successfully
+                        Log.d("ReviewSubmissionFragment", "User points updated after review: $newPoints")
+                    }
+                    .addOnFailureListener {
+                        // Handle the error if updating points fails
+                        Log.e("ReviewSubmissionFragment", "Failed to update user points after review")
+                    }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                // Handle the error if the database operation is canceled
+                Log.e("ReviewSubmissionFragment", "Error updating user points after review: ${error.message}")
+            }
+        })
+    }
 
     companion object {
         fun newInstance(eventId: String): ReviewSubmissionFragment {
@@ -93,4 +120,8 @@ class ReviewSubmissionFragment : Fragment() {
             return fragment
         }
     }
+    private fun closeFragment() {
+        requireFragmentManager().beginTransaction().remove(this).commit()
+    }
+
 }

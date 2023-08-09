@@ -80,6 +80,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             }
         }
 
+
         btnApplyFilter.setOnClickListener {
             applyFilter()
             filterOptionsContainer.visibility = View.GONE
@@ -91,6 +92,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         val btnUserProfile = findViewById<ImageButton>(R.id.btnUserProfile)
         btnUserProfile.setOnClickListener {
             openUserProfileActivity()
+        }
+        val btnUserRanking= findViewById<Button>(R.id.btnUserRanking)
+        btnUserRanking.setOnClickListener {
+            val intent = Intent(this, UserRankingActivity::class.java)
+            startActivity(intent)
         }
     }
     private fun openUserProfileActivity() {

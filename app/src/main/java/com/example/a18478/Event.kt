@@ -5,18 +5,18 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.clustering.ClusterItem
 
 data class Event(
-    val eventType: String,
-    val date: String,
-    val time: String,
-    val description: String,
-    val latitude: Double,
-    val longitude: Double,
-    val userList: MutableList<String> = mutableListOf(),
-    var eventId: String = ""
+    val eventType: String = "",
+    val date: String = "",
+    val time: String = "",
+    val description: String = "",
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
+    var creatorUserId: String = "",
+var eventId:String=""
 ) : ClusterItem, Parcelable {
 
     // Add a secondary constructor with no arguments (required by Firebase)
-    constructor() : this("", "", "", "", 0.0, 0.0, mutableListOf())
+    constructor() : this("", "", "", "", 0.0, 0.0,"","")
     override fun getPosition(): LatLng {
         return LatLng(latitude, longitude)
     }
@@ -37,7 +37,7 @@ data class Event(
         parcel.writeString(description)
         parcel.writeDouble(latitude)
         parcel.writeDouble(longitude)
-        parcel.writeStringList(userList)
+       parcel.writeString(creatorUserId)
     }
 
     override fun describeContents(): Int {
@@ -61,7 +61,7 @@ data class Event(
         description = parcel.readString() ?: "",
         latitude = parcel.readDouble(),
         longitude = parcel.readDouble(),
-        userList = parcel.createStringArrayList()?.toMutableList() ?: mutableListOf()
+        creatorUserId=parcel.readString()?:""
     )
 
 }

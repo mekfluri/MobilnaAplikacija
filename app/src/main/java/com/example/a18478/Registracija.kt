@@ -1,5 +1,6 @@
 
 package com.example.a18478
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import com.google.android.material.snackbar.Snackbar
@@ -40,7 +41,6 @@ class Registracija : AppCompatActivity() {
     }
 
     private fun registerUser() {
-
         val korisnickoIme = binding.korisnickoTV.text.toString()
         val sifra = binding.sifraTV.text.toString()
         val ime = binding.imeTV.text.toString()
@@ -62,6 +62,9 @@ class Registracija : AppCompatActivity() {
                         korisnikMap["prezime"] = prezime
                         korisnikMap["telefon"] = telefon
 
+                        // Add the new attribute with value 0
+                        korisnikMap["poeni"] = 0
+
                         database.child("korisnici").child(userId).setValue(korisnikMap)
                             .addOnCompleteListener { dbTask ->
                                 if (dbTask.isSuccessful) {
@@ -71,6 +74,12 @@ class Registracija : AppCompatActivity() {
                                         "Registracija uspešna!",
                                         Toast.LENGTH_SHORT
                                     ).show()
+
+                                    // Open MainActivity
+                                    val intent = Intent(this@Registracija, MainActivity::class.java)
+                                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    startActivity(intent)
+                                    finish() // Close the current activity
                                 } else {
                                     // Greška prilikom čuvanja podataka u bazi
                                     Toast.makeText(
@@ -86,5 +95,7 @@ class Registracija : AppCompatActivity() {
                     Toast.makeText(this, "Greška pri registraciji!", Toast.LENGTH_SHORT).show()
                 }
             }
+
     }
+
 }
