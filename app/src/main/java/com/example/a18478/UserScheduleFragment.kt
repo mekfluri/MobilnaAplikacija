@@ -22,6 +22,11 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import java.util.*
 
+import com.prolificinteractive.materialcalendarview.DayViewDecorator
+import com.prolificinteractive.materialcalendarview.DayViewFacade
+import java.text.SimpleDateFormat
+
+
 class UserScheduleFragment : Fragment() {
     // Initialize variables
     private lateinit var calendarView: MaterialCalendarView
@@ -49,12 +54,36 @@ class UserScheduleFragment : Fragment() {
         val userId = currentUser?.uid
         if (userId != null) {
             fetchEventsForUser(userId)
+            // Set up a decorator to highlight the dates with events
+
+            calendarView.addDecorator(object : DayViewDecorator {
+                override fun shouldDecorate(day: CalendarDay?): Boolean {
+                    val eventDates = eventList.mapNotNull { event ->
+                        convertDateStringToDate(event.date)
+                    }
+                    return eventDates.any { eventDate -> eventDate == day?.date }
+                }
+
+                override fun decorate(view: DayViewFacade?) {
+                    // Customize how the dates with events should be decorated (e.g., change background color)
+                    view?.setBackgroundDrawable(resources.getDrawable(R.drawable.rounded_background))
+                }
+            })
+
+// ...
+
         }
 
         return view
     }
-
-
+    fun convertDateStringToDate(dateString: String): Date? {
+        val dateFormat = SimpleDateFormat("dd.MM.yyyy.", Locale.getDefault())
+        return try {
+            dateFormat.parse(dateString)
+        } catch (e: Exception) {
+            null
+        }
+    }
     private fun fetchEventsForUser(userId: String) {
         val userEventsRef = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app")
             .getReference("korisnici")

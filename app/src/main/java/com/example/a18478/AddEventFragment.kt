@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.a18478.databinding.FragmentAddEventBinding
@@ -16,7 +18,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
 
 class AddEventFragment : Fragment() {
-
+    private var eventType: String? = null
     companion object {
         private const val ARG_SELECTED_LOCATION = "selected_location"
 
@@ -46,10 +48,24 @@ class AddEventFragment : Fragment() {
 
         // Show the selected location on the map using a marker or any other visual representation.
         // You can also display the latitude and longitude values in TextViews for better clarity.
+        val spinner2 = binding.spinner2
+        val eventTypesArray = resources.getStringArray(R.array.event_types)
+        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, eventTypesArray)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinner2.adapter = adapter
 
+        spinner2.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                eventType = eventTypesArray[position]
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                eventType = null
+            }
+        }
         binding.saveButton.setOnClickListener {
             // Get event details and the selected location here and save it to the Realtime Database.
-            val eventType = binding.eventTypeEditText.text.toString()
+
             val date = binding.dateEditText.text.toString()
             val time = binding.timeEditText.text.toString()
             val description = binding.descriptionEditText.text.toString()
@@ -60,7 +76,7 @@ class AddEventFragment : Fragment() {
             val eventKey = eventsRef.push().key
             eventKey?.let {
                 val userId = FirebaseAuth.getInstance().currentUser?.uid // Get the current active user ID
-                val event = Event(eventType, date, time, description, selectedLocation?.latitude ?: 0.0, selectedLocation?.longitude ?: 0.0, userId ?: "")
+                val event = Event(eventType!!, date, time, description, selectedLocation?.latitude ?: 0.0, selectedLocation?.longitude ?: 0.0, userId ?: "")
 
                 eventsRef.child(it).setValue(event)
                     .addOnSuccessListener {

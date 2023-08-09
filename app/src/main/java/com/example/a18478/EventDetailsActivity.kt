@@ -1,8 +1,12 @@
 package com.example.a18478
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.a18478.databinding.ActivityEventDetailsBinding
@@ -51,18 +55,39 @@ class EventDetailsActivity : AppCompatActivity() {
             adapter = reviewsAdapter
         }
 
-        // Handle the ticket button click
         val btnBuyTicket: Button = findViewById(R.id.btnBuyTicket)
-        btnBuyTicket.setOnClickListener {
-            val currentUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser
-            if (currentUser != null) {
-                // Add the current authenticated user's ID to the event's userList
-                updateEventUserList(eventId, currentUser.uid) // Pass the eventKey (eventId) as the first argument
-            } else {
-                // If the user is not authenticated, handle the sign-in process
-                // For example, you can show a sign-in prompt or redirect the user to the login page.
-                // You can use FirebaseUI Auth for a quick and easy way to implement Firebase Auth UI: https://github.com/firebase/FirebaseUI-Android
-            }
+        val currentUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser
+
+        if (currentUser != null) {
+            val eventUsersRef = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app/")
+                .getReference("events")
+                .child(eventId)
+                .child("users")
+
+            eventUsersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val hasBoughtTicket = snapshot.hasChild(currentUser.uid)
+
+                    if (hasBoughtTicket) {
+                        // User has already bought a ticket, hide the "Buy Ticket" button
+                        btnBuyTicket.visibility = View.GONE
+                    } else {
+                        // User has not bought a ticket, show the "Buy Ticket" button
+                        btnBuyTicket.visibility = View.VISIBLE
+                        btnBuyTicket.setOnClickListener {
+                            // Handle the ticket purchase logic
+                            updateEventUserList(eventId, currentUser.uid)
+                        }
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("EventDetailsActivity", "Error checking user attendance: ${error.message}")
+                }
+            })
+        } else {
+            // If the user is not authenticated, handle the sign-in process
+            // ...
         }
 
         val reviewBtn: Button = findViewById(R.id.reviewBtn)
@@ -80,6 +105,7 @@ class EventDetailsActivity : AppCompatActivity() {
         // Fetch and display reviews
         fetchReviews(eventId)
     }
+
 
     // Function to fetch reviews from Firebase Realtime Database
     private fun fetchReviews(eventId: String) {
@@ -120,18 +146,24 @@ class EventDetailsActivity : AppCompatActivity() {
 
 
 
+    @SuppressLint("RestrictedApi")
     private fun updateEventUserList(eventKey: String, userId: String) {
-        Log.d("EventDetailsActivity", "eventKey: $eventKey") // Log the value of eventKey
+        Log.d("EventDetailsActivity", "Updating event user list for event: $eventKey, user: $userId")
+
         val eventRef = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app")
             .getReference("events")
             .child(eventKey)
             .child("users")
             .child(userId)
 
+        Log.d("EventDetailsActivity", "Event reference path: ${eventRef.path}")
+
         // Set the value to true (you can use "false" if you want to remove the user from the event)
         eventRef.setValue(true)
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
+                    Log.d("EventDetailsActivity", "Event user update successful")
+
                     // If the update is successful, refresh the activity to show the updated user list
                     displayEventDetails()
 
@@ -141,6 +173,8 @@ class EventDetailsActivity : AppCompatActivity() {
                         .child(userId)
                         .child("events")
                         .child(eventKey)
+
+                    Log.d("EventDetailsActivity", "User event reference path: ${userEventRef.path}")
 
                     userEventRef.setValue(true)
                         .addOnSuccessListener {
@@ -155,11 +189,13 @@ class EventDetailsActivity : AppCompatActivity() {
 
                 } else {
                     // Handle the error if the update fails
+                    Log.e("EventDetailsActivity", "Failed to update event user list for event: $eventKey, user: $userId")
                     // For example, show an error toast or log the error message
                 }
             }
     }
-     fun displayEventDetails() {
+
+    fun displayEventDetails() {
         // Populate the XML views with event details
         event?.let {
             binding.textViewEventType.text = it.eventType
@@ -167,9 +203,8 @@ class EventDetailsActivity : AppCompatActivity() {
             binding.textViewTime.text = it.time
             binding.textViewDescription.text = it.description
 
-
-
-
+            // Call the function to fetch and display user names
+            fetchAndDisplayUserNames(eventId)
         }
     }
 
@@ -178,36 +213,63 @@ class EventDetailsActivity : AppCompatActivity() {
 
 
 
+    private fun fetchAndDisplayUserNames(eventKey: String) {
+        val eventUsersRef = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app/")
+            .getReference("events")
+            .child(eventKey)
+            .child("users")
+
+        eventUsersRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val userIds = mutableListOf<String>()
+
+                // Collect the user IDs from the event's "users" node
+                for (userSnapshot in snapshot.children) {
+                    val userId = userSnapshot.key
+                    userId?.let { userIds.add(it) }
+                }
+
+                // Fetch and display the user names
+                fetchUsernames(userIds) { usernamesMap ->
+                    val userListContainer = findViewById<LinearLayout>(R.id.userListContainer)
+
+                    for ((userId, username) in usernamesMap) {
+                        val userNameTextView = TextView(this@EventDetailsActivity)
+                        userNameTextView.text = username
+                        userListContainer.addView(userNameTextView)
+                    }
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("EventDetailsActivity", "Error fetching event users: ${error.message}")
+            }
+        })
+    }
 
     private fun fetchUsernames(userIds: List<String>, callback: (Map<String, String>) -> Unit) {
-        val usersRef = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app")
-            .getReference("users")
+        val usersRef = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app/")
+            .getReference("korisnici")
 
         val usernamesMap = mutableMapOf<String, String>()
 
         for (userId in userIds) {
-            usersRef.child(userId).get().addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val userSnapshot = task.result // Get the user data snapshot
-                    if (userSnapshot != null && userSnapshot.exists()) {
-                        // Extract the username from the user data snapshot
-                        val username = userSnapshot.child("korisnickoIme").getValue(String::class.java)
+            usersRef.child(userId).child("korisnickoIme")
+                .addListenerForSingleValueEvent(object : ValueEventListener {
+                    override fun onDataChange(snapshot: DataSnapshot) {
+                        val username = snapshot.getValue(String::class.java)
                         if (username != null) {
-                            // Store the username in the usernamesMap
                             usernamesMap[userId] = username
+                        }
+
+                        if (usernamesMap.size == userIds.size) {
+                            callback(usernamesMap)
                         }
                     }
 
-                    // Check if all usernames have been fetched
-                    if (usernamesMap.size == userIds.size) {
-                        callback(usernamesMap)
+                    override fun onCancelled(error: DatabaseError) {
+                        Log.e("EventDetailsActivity", "Error fetching usernames: ${error.message}")
                     }
-                } else {
-                    // Handle the error if fetching user data fails
-                }
-            }
+                })
         }
-    }
-
-
-}
+    }}

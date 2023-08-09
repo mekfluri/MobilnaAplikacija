@@ -59,18 +59,37 @@
 
     <TextView
         android:id="@+id/textViewUsers"
-        android:layout_width="82dp"
-        android:layout_height="7dp"
+        android:layout_width="389dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Users who bought tickets:"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
 
-    <TextView
-        android:id="@+id/textViewUserList"
-        android:layout_width="42dp"
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text=""
-        android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
+        android:layout_marginTop="16dp"
+        android:contentDescription="Scrollable content">
+
+        <LinearLayout
+            android:id="@+id/userListContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Content for the first NestedScrollView -->
+            <TextView
+                android:id="@+id/textViewUserList"
+                android:layout_width="385dp"
+                android:layout_height="67dp"
+                android:text=""
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                android:layout_marginTop="16dp" />
+
+            <!-- Other content for the first NestedScrollView -->
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <Button
         android:id="@+id/btnBuyTicket"

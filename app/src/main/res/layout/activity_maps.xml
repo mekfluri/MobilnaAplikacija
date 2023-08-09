@@ -30,7 +30,7 @@
 
         <!-- Event Type Dropdown -->
         <Spinner
-            android:id="@+id/spinnerEventType"
+            android:id="@+id/spinner_event_types"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/event_types"
@@ -96,5 +96,6 @@
         android:layout_below="@id/btnUserProfile"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp" />
+
 
 </RelativeLayout>

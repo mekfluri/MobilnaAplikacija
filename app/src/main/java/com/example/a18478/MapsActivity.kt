@@ -4,6 +4,7 @@ package com.example.a18478
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.location.Location
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -53,7 +54,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         setContentView(binding.root)
 
         filterOptionsContainer = findViewById(R.id.filterOptionsContainer)
-        spinnerEventType = findViewById(R.id.spinnerEventType)
+        spinnerEventType = findViewById(R.id.spinner_event_types)
         editTextStartDate = findViewById(R.id.editTextStartDate)
         btnApplyFilter = findViewById(R.id.btnApplyFilter)
 
@@ -138,8 +139,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             val currentLatLng = LatLng(location.latitude, location.longitude)
             mMap.addMarker(MarkerOptions().position(currentLatLng).title("Your Location"))
             mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLatLng))
-            Log.d("Location", "Latitude: ${location.latitude}, Longitude: ${location.longitude}")
+
+            // Calculate distance and filter events within a certain radius (e.g., 5 kilometers)
+            val maxRadius = 5000 // in meters
+            val nearbyEvents = allEventsList.filter { event ->
+                val eventLatLng = LatLng(event.latitude, event.longitude)
+                val distance = FloatArray(1)
+                Location.distanceBetween(
+                    currentLatLng.latitude, currentLatLng.longitude,
+                    eventLatLng.latitude, eventLatLng.longitude, distance
+                )
+                distance[0] <= maxRadius
+            }
+
+
+            clusterManager.clearItems() // Clear existing items from ClusterManager
+            for (event in nearbyEvents) {
+                addEventMarker(event)
+            }
+
+            clusterManager.cluster() // Cluster the new filtered markers
         }
+
 
         mMap.setOnMapClickListener { latLng ->
             selectedMarker?.remove()
@@ -215,7 +236,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
 
 
     private fun parseDate(dateString: String): Date {
-        val dateFormat = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+        val dateFormat = SimpleDateFormat("dd.MM.yyyy.", Locale.getDefault())
         return dateFormat.parse(dateString) ?: Date()
     }
 
@@ -240,6 +261,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
 
         clusterManager.cluster() // Cluster the new filtered markers
     }
+
 
 
 
