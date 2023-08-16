@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/download"
     tools:context=".MainActivity">
 
     <Button
@@ -23,6 +24,8 @@
         android:ems="10"
         android:hint="Unesite šifru"
         android:inputType="textPassword"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.58"
@@ -34,6 +37,8 @@
         android:id="@+id/loginBtn"
         android:layout_width="134dp"
         android:layout_height="56dp"
+        android:background="@drawable/images"
+        android:shadowColor="#EEF6FE"
         android:text="Prijavi se"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -46,10 +51,17 @@
         android:id="@+id/korisnickoImeTv"
         android:layout_width="309dp"
         android:layout_height="50dp"
+        android:layout_marginStart="53dp"
+        android:layout_marginEnd="49dp"
         android:ems="10"
         android:hint="Unesite korisničko ime"
         android:inputType="textPersonName"
-        android:text="Name"
-        tools:layout_editor_absoluteX="53dp"
-        tools:layout_editor_absoluteY="110dp" />
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.162" />
 </androidx.constraintlayout.widget.ConstraintLayout>

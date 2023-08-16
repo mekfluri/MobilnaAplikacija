@@ -24,20 +24,20 @@
             android:hint="Event Type"/>
 
 
+        <EditText
+            android:id="@+id/dateEditText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="date" />
+
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
             android:layout_marginTop="16dp"
-            android:hint="Datum (dd.MM.yyyy.)">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/dateEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
-        </com.google.android.material.textfield.TextInputLayout>
+            android:hint="Datum (dd.MM.yyyy.)"/>
 
         <!-- EditText for Time -->
         <com.google.android.material.textfield.TextInputLayout

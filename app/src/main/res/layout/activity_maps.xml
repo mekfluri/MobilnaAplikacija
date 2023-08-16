@@ -16,8 +16,20 @@
 
     <FrameLayout
         android:id="@+id/fragment_container"
+
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent" >
+
+        <ImageButton
+            android:id="@+id/btnUserProfile"
+            android:layout_width="75dp"
+            android:layout_height="61dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="336dp"
+            android:layout_marginBottom="670dp"
+            android:background="@drawable/img"
+            android:contentDescription="User Profile" />
+    </FrameLayout>
 
     <!-- Filter Options -->
     <LinearLayout
@@ -36,13 +48,43 @@
             android:entries="@array/event_types"
             android:prompt="@string/select_event_type" />
 
-        <!-- Date Range Picker -->
-        <!-- You can use any date picker library or custom implementation -->
         <EditText
             android:id="@+id/editTextStartDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Start Date (yyyy-MM-dd)" />
+            android:hint="Datum početka (dd.MM.yyyy.)" />
+        <EditText
+            android:id="@+id/editTextDateOfMaking"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Datum postavljanja (dd.MM.yyyy.)" />
+        <EditText
+            android:id="@+id/editTextAuthor"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Autor" />
+
+        <!-- Checkbox for "2km from user's current location" filter -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical">
+
+            <CheckBox
+                android:id="@+id/checkBoxNearby"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="false" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="U vasoj blizini"
+                android:layout_marginStart="8dp" />
+
+        </LinearLayout>
 
         <!-- Apply Filter Button -->
         <Button
@@ -52,13 +94,6 @@
             android:text="Apply Filter" />
 
     </LinearLayout>
-    <ImageButton
-        android:id="@+id/btnUserProfile"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@android:drawable/ic_menu_gallery"
-        android:contentDescription="User Profile" />
-
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -72,7 +107,8 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:contentDescription="Add Event"
-        android:src="@android:drawable/ic_input_add" />
+        android:src="@android:drawable/ic_input_add"
+        android:gravity="center"/>
 
     <ImageButton
         android:id="@+id/btnFilter"
@@ -96,6 +132,17 @@
         android:layout_below="@id/btnUserProfile"
         android:layout_marginEnd="16dp"
         android:layout_marginTop="16dp" />
+
+    <Button
+        android:id="@+id/btnAllEvents"
+        android:layout_width="149dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/btnUserRanking"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="Lista dogadjaja" />
+
 
 
 </RelativeLayout>

@@ -20,10 +20,9 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.firebase.database.*
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -44,6 +43,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
     private lateinit var eventsRef: DatabaseReference
     private lateinit var binding: ActivityMapsBinding
     private lateinit var allEventsList: List<Event>
+    private lateinit var checkBoxNearby: CheckBox
+
 
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
     private var selectedMarker: Marker? = null
@@ -57,6 +58,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         spinnerEventType = findViewById(R.id.spinner_event_types)
         editTextStartDate = findViewById(R.id.editTextStartDate)
         btnApplyFilter = findViewById(R.id.btnApplyFilter)
+        checkBoxNearby = findViewById(R.id.checkBoxNearby)
+
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -97,6 +100,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         val btnUserRanking= findViewById<Button>(R.id.btnUserRanking)
         btnUserRanking.setOnClickListener {
             val intent = Intent(this, UserRankingActivity::class.java)
+            startActivity(intent)
+        }
+        val btnEventList=findViewById<Button>(R.id.btnAllEvents)
+        btnEventList.setOnClickListener{
+            val intent=Intent(this,EventListActivity::class.java)
             startActivity(intent)
         }
     }
@@ -244,26 +252,126 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
     private fun applyFilter() {
         val selectedEventType = spinnerEventType.selectedItem.toString()
         val startDateString = editTextStartDate.text.toString()
+        val isNearbyChecked = checkBoxNearby.isChecked // Get the state of the checkbox
+        val editTextAuthor = findViewById<EditText>(R.id.editTextAuthor).text.toString()
+        val editTextDateOfMaking = findViewById<EditText>(R.id.editTextDateOfMaking).text.toString()
 
-        val filteredEvents = allEventsList.filter { event ->
-            // Filter by event type and start date
-            (selectedEventType.isEmpty() || selectedEventType == event.eventType) &&
-                    (startDateString.isEmpty() || parseDate(event.date) >= parseDate(startDateString))
-        }.sortedBy { event ->
-            // Sort by date in ascending order
-            parseDate(event.date).time
+        val filteredEvents = if (isNearbyChecked) {
+            // Apply the "2km from user's current location" filter
+            val currentLatLng = LatLng(mMap.myLocation.latitude, mMap.myLocation.longitude)
+            val maxRadius = 2000 // in meters
+            allEventsList.filter { event ->
+                calculateDistance(
+                    currentLatLng.latitude, currentLatLng.longitude,
+                    event.latitude, event.longitude
+                ) <= maxRadius
+            }
+        } else {
+            allEventsList
+        }.filter { event ->
+            // Filter by event type, start date, and date of making
+            val typeFilter = selectedEventType.isEmpty() || selectedEventType == event.eventType
+            val dateFilter = startDateString.isEmpty() || event.date == startDateString
+            val dateOfMakingFilter = editTextDateOfMaking.isEmpty() || event.dateOfMaking == editTextDateOfMaking
+            typeFilter && dateFilter && dateOfMakingFilter
+        }.toMutableList()
+
+        findUserByUsername(editTextAuthor) { user ->
+            if (user != null) {
+                filteredEvents.retainAll { event ->
+                    event.creatorUserId == user.userId
+                }
+            }
+
+            val sortedEvents = filteredEvents.filter { event ->
+                // Filter out events with null values for selected sorting criteria
+                val validDate = event.date != null || startDateString.isEmpty()
+                val validCreator = !event.creatorUserId.isNullOrEmpty() || editTextAuthor.isEmpty()
+                val validType = !event.eventType.isNullOrEmpty() || selectedEventType.isEmpty()
+                val validDateOfMaking = !event.dateOfMaking.isNullOrEmpty() || editTextDateOfMaking.isEmpty()
+                validDate && validCreator && validType && validDateOfMaking
+            }.sortedWith(compareBy<Event> { event ->
+                // Sort by date if valid
+                if (event.date != null && startDateString.isNotEmpty()) {
+                    Log.d("Sorting", "Sorting by date: ${event.date}")
+                    event.date
+                } else {
+                    Log.d("Sorting", "Date is null or startDateString is empty")
+                    ""
+                }
+            }.thenBy { event ->
+                // Sort by creatorUserId if valid
+                if (!event.creatorUserId.isNullOrEmpty() && editTextAuthor.isNotEmpty()) {
+                    Log.d("Sorting", "Sorting by creatorUserId: ${event.creatorUserId}")
+                    event.creatorUserId
+                } else {
+                    Log.d("Sorting", "creatorUserId is null or editTextAuthor is empty")
+                    ""
+                }
+            }.thenBy { event ->
+                // Sort by eventType if valid
+                if (!event.eventType.isNullOrEmpty() && selectedEventType.isNotEmpty()) {
+                    Log.d("Sorting", "Sorting by eventType: ${event.eventType}")
+                    event.eventType
+                } else {
+                    Log.d("Sorting", "eventType is null or selectedEventType is empty")
+                    ""
+                }
+            }.thenBy { event ->
+                // Sort by dateOfMaking if valid
+                if (!event.dateOfMaking.isNullOrEmpty() && editTextDateOfMaking.isNotEmpty()) {
+                    Log.d("Sorting", "Sorting by dateOfMaking: ${event.dateOfMaking}")
+                    event.dateOfMaking
+                } else {
+                    Log.d("Sorting", "dateOfMaking is null or editTextDateOfMaking is empty")
+                    ""
+                }
+            }.thenBy { event ->
+                // Sort by isNearbyChecked (if not nearby, push to the end)
+                if (!isNearbyChecked) {
+                    Log.d("Sorting", "Sorting by isNearbyChecked: 1")
+                    1
+                } else {
+                    Log.d("Sorting", "Sorting by isNearbyChecked: 0")
+                    0
+                }
+            }).toMutableList()
+
+            clusterManager.clearItems() // Clear existing items from ClusterManager
+            for (event in sortedEvents) {
+                addEventMarker(event)
+            }
+
+            clusterManager.cluster() // Cluster the new filtered markers
         }
-
-        clusterManager.clearItems() // Clear existing items from ClusterManager
-        for (event in filteredEvents) {
-            addEventMarker(event)
-        }
-
-        clusterManager.cluster() // Cluster the new filtered markers
     }
 
 
 
+    private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Float {
+        val results = FloatArray(1)
+        Location.distanceBetween(lat1, lon1, lat2, lon2, results)
+        return results[0]
+    }
+
+    private fun findUserByUsername(username: String, callback: (User?) -> Unit) {
+        val databaseUrl = "https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app/"
+        val databaseReference = FirebaseDatabase.getInstance(databaseUrl).getReference("korisnici")
+
+        databaseReference.orderByChild("username").equalTo(username)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val userSnapshot = snapshot.children.firstOrNull()
+                    val user = userSnapshot?.getValue(User::class.java)
+                    callback(user)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    // Handle errors, if any
+                    callback(null)
+                }
+            })
+    }
 
 
 

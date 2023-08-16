@@ -8,6 +8,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:allowBackup="true"
@@ -18,6 +21,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.18478"
         tools:targetApi="31">
+        <activity
+            android:name=".EventListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ListaDogadjaja"
+            android:exported="false" />
         <activity
             android:name=".UserRankingActivity"
             android:exported="false" />
@@ -72,7 +81,13 @@
             android:name=".Registracija"
             android:exported="false"
             android:label="@string/title_activity_registracija"
-            android:theme="@style/Theme.18478.NoActionBar" />
+            android:theme="@style/Theme.18478.NoActionBar">
+            <intent-filter>
+                <action android:name="android.media.action.IMAGE_CAPTURE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".OTPActivity"
             android:exported="false" />

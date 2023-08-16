@@ -2,29 +2,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/download"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:gravity="center">
+
     <TextView
         android:id="@+id/textViewAverageRating"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:textColor="@android:color/black"
+        android:layout_below="@id/textViewUserList"
         android:layout_marginTop="8dp"
         android:text="Average Rating: 0.00"
-        android:layout_below="@id/textViewUserList"
-        />
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/textViewNumberOfReviews"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
-        android:textColor="@android:color/black"
+        android:layout_below="@id/textViewAverageRating"
         android:layout_marginTop="4dp"
         android:text="0 Reviews"
-        android:layout_below="@id/textViewAverageRating"
-        />
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
 
     <TextView
@@ -33,6 +37,8 @@
         android:layout_height="wrap_content"
         android:text="Event Type"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
         android:textStyle="bold" />
 
     <TextView
@@ -40,14 +46,20 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Date"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/textViewTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Time"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/textViewDescription"
@@ -55,15 +67,20 @@
         android:layout_height="wrap_content"
         android:text="Description"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-        android:textStyle="italic" />
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/textViewUsers"
         android:layout_width="389dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="Users who bought tickets:"
-        android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+        android:text="     Korisnici koji su kupili kartu:"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@color/white"
+        android:textColorHint="@color/white"
+        android:textStyle="bold" />
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -82,9 +99,12 @@
                 android:id="@+id/textViewUserList"
                 android:layout_width="385dp"
                 android:layout_height="67dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/common_google_signin_btn_text_light_focused"
                 android:text=""
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:layout_marginTop="16dp" />
+                android:textColor="@color/white"
+                android:textColorHint="@color/white" />
 
             <!-- Other content for the first NestedScrollView -->
 
@@ -97,11 +117,11 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="16dp"
-        android:text="Buy Ticket" />
+        android:text="Kupi kartu" />
 
     <Button
         android:id="@+id/reviewBtn"
-        android:layout_width="match_parent"
+        android:layout_width="141dp"
         android:layout_height="wrap_content"
         android:text="Dodaj recenziju" />
 
@@ -114,8 +134,8 @@
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
         android:layout_marginTop="16dp"
+        android:layout_weight="1"
         android:contentDescription="Scrollable content">
 
         <!-- LinearLayout to hold the FragmentContainer -->

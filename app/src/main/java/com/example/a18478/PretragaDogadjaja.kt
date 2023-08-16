@@ -13,10 +13,9 @@ import com.google.firebase.database.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import java.text.SimpleDateFormat
 import java.util.*
-import com.google.firebase.database.DataSnapshot
-import kotlinx.coroutines.tasks.await
 
 class PretragaDogadjaja : AppCompatActivity() {
 
@@ -42,31 +41,16 @@ class PretragaDogadjaja : AppCompatActivity() {
             adapter = eventsAdapter
         }
 
-        // Fetch and display recommended events (filtering by event type)
         CoroutineScope(Dispatchers.Main).launch {
             val preferredEventTypes = fetchPreferredEventTypes()
             fetchEventsOfPreferredTypes(preferredEventTypes)
         }
 
-        // Setup the SearchView
-        val searchView: SearchView = findViewById(R.id.searchTLB)
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String): Boolean {
-                // Handle search query submission
-                return false
-            }
+        // Other UI setup code
 
-            override fun onQueryTextChange(newText: String): Boolean {
-                // Handle search query text change
-                // Log the search query
-                Log.d("SearchQuery", "New query: $newText")
 
-                // Filter the events based on the search query
-                filterEvents(newText)
-                return true
-            }
-        })
     }
+
 
     private suspend fun fetchPreferredEventTypes(): List<String> {
         val currentUser = FirebaseAuth.getInstance().currentUser
