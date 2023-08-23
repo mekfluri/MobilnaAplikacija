@@ -154,5 +154,11 @@
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
+    <Button
+        android:id="@+id/RecenzijeButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Recenzije korisnika" />
+
 
 </LinearLayout>

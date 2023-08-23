@@ -1,6 +1,7 @@
 package com.example.a18478
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -54,6 +55,13 @@ class EventDetailsActivity : AppCompatActivity() {
             layoutManager = LinearLayoutManager(this@EventDetailsActivity)
             adapter = reviewsAdapter
         }
+        val recenzijeButton: Button = findViewById(R.id.RecenzijeButton)
+        recenzijeButton.setOnClickListener {
+            val intent = Intent(this, UserReviewsActivity::class.java)
+            intent.putExtra(UserReviewsActivity.EXTRA_EVENT_ID, eventId)
+            startActivity(intent)
+        }
+
 
         val btnBuyTicket: Button = findViewById(R.id.btnBuyTicket)
         val currentUser: FirebaseUser? = FirebaseAuth.getInstance().currentUser

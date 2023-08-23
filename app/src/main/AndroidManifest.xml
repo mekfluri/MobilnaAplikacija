@@ -22,6 +22,9 @@
         android:theme="@style/Theme.18478"
         tools:targetApi="31">
         <activity
+            android:name=".UserReviewsActivity"
+            android:exported="false" />
+        <activity
             android:name=".EventListActivity"
             android:exported="false" />
         <activity

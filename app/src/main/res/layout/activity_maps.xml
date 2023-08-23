@@ -37,6 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
+        android:layout_marginTop="150dp"
         android:padding="16dp"
         android:visibility="gone">
 
@@ -128,10 +129,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="User Ranking"
+        android:layout_marginTop="80dp"
         android:layout_alignParentEnd="true"
         android:layout_below="@id/btnUserProfile"
         android:layout_marginEnd="16dp"
-        android:layout_marginTop="16dp" />
+       />
 
     <Button
         android:id="@+id/btnAllEvents"
