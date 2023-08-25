@@ -92,19 +92,21 @@
             android:id="@+id/userListContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold" >
 
             <!-- Content for the first NestedScrollView -->
             <TextView
                 android:id="@+id/textViewUserList"
-                android:layout_width="385dp"
-                android:layout_height="67dp"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_marginTop="16dp"
-                android:background="@color/common_google_signin_btn_text_light_focused"
                 android:text=""
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                android:textColor="@color/white"
-                android:textColorHint="@color/white" />
+                android:textStyle="bold"
+                android:textColorHint="@color/white"
+                android:textColor="#FFFFFF"/>
 
             <!-- Other content for the first NestedScrollView -->
 
@@ -121,15 +123,22 @@
 
     <Button
         android:id="@+id/reviewBtn"
-        android:layout_width="141dp"
-        android:layout_height="wrap_content"
+        android:layout_width="122dp"
+        android:layout_height="37dp"
         android:text="Dodaj recenziju" />
+
+    <Button
+        android:id="@+id/RecenzijeButton"
+        android:layout_width="134dp"
+        android:layout_height="wrap_content"
+        android:text="Recenzije korisnika" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/reviewsRecyclerView"
         android:layout_width="wrap_content"
         android:layout_height="7dp"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        android:textColor="#FFFFFF"/>
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -153,12 +162,6 @@
 
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
-
-    <Button
-        android:id="@+id/RecenzijeButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Recenzije korisnika" />
 
 
 </LinearLayout>

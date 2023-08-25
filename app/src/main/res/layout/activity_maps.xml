@@ -124,16 +124,16 @@
         android:background="@null"
         android:contentDescription="Filter Events"
         android:src="@android:drawable/ic_menu_search" />
+
     <Button
         android:id="@+id/btnUserRanking"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="User Ranking"
-        android:layout_marginTop="80dp"
-        android:layout_alignParentEnd="true"
         android:layout_below="@id/btnUserProfile"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="80dp"
         android:layout_marginEnd="16dp"
-       />
+        android:text="Rang lista " />
 
     <Button
         android:id="@+id/btnAllEvents"

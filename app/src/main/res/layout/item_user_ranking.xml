@@ -9,20 +9,24 @@
         android:id="@+id/textViewUsername"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:textSize="16sp"
-        android:textStyle="bold"
         android:layout_gravity="start"
         android:layout_marginEnd="8dp"
+        android:layout_weight="1"
+        android:background="@color/common_google_signin_btn_text_light_default"
         android:ellipsize="end"
-        android:maxLines="1" />
+        android:maxLines="1"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold" />
 
     <TextView
         android:id="@+id/textViewPoints"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
         android:layout_gravity="end"
-        android:layout_marginStart="8dp" />
+        android:layout_marginStart="8dp"
+        android:background="@color/common_google_signin_btn_text_light_default"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp" />
 
 </LinearLayout>

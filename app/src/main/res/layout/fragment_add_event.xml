@@ -13,7 +13,7 @@
 
         <Spinner
             android:id="@+id/spinner2"
-            android:layout_width="331dp"
+            android:layout_width="380dp"
             android:layout_height="47dp"
             android:background="@color/white" />
 
@@ -28,9 +28,10 @@
 
         <EditText
             android:id="@+id/dateEditText"
-            android:layout_width="match_parent"
+            android:layout_width="380dp"
             android:layout_height="wrap_content"
             android:ems="10"
+            android:hint="Datum dd.MM.yyyy."
             android:inputType="date" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -64,12 +65,13 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="16dp"
-            android:hint="Description">
+           >
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/descriptionEditText"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content"
+                android:hint="Opis dogadjaja" />
 
         </com.google.android.material.textfield.TextInputLayout>
 

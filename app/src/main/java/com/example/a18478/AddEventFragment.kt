@@ -40,6 +40,15 @@ class AddEventFragment : Fragment() {
         binding = FragmentAddEventBinding.inflate(inflater, container, false)
         return binding.root
     }
+    private fun addEventSuccess() {
+        // Update the event list in the MapsActivity
+        val mapsActivity = activity as? MapsActivity
+        mapsActivity?.updateEventListAndMap()
+
+        // Close the fragment
+        requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
+    }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -95,13 +104,7 @@ class AddEventFragment : Fragment() {
                                     val newPoints = currentPoints + 2
                                     userRef.child("poeni").setValue(newPoints)
                                         .addOnSuccessListener {
-                                            requireActivity().supportFragmentManager.beginTransaction().remove(this@AddEventFragment).commit()
 
-
-                                            val intent = Intent(requireContext(), MapsActivity::class.java)
-                                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
-                                            startActivity(intent)
-                                            requireActivity().finish()
                                                }
                                         .addOnFailureListener {
                                             Toast.makeText(requireContext(), "Greška u dodavanju poena", Toast.LENGTH_SHORT).show()
@@ -113,6 +116,7 @@ class AddEventFragment : Fragment() {
                                 }
                             })
                         }
+                        addEventSuccess()
                     }
                     .addOnFailureListener {
                         Toast.makeText(requireContext(), "Greška prilikom čuvanja dogadjaja", Toast.LENGTH_SHORT).show()

@@ -117,6 +117,7 @@ class Registracija : AppCompatActivity() {
         ).reference
 
         korisnikMap["poeni"] = 0
+        korisnikMap["notifikacija"]=0
 
         database.child("korisnici").child(userId).setValue(korisnikMap)
             .addOnCompleteListener { dbTask ->
@@ -149,6 +150,7 @@ class Registracija : AppCompatActivity() {
                         korisnikMap["ime"] = ime
                         korisnikMap["prezime"] = prezime
                         korisnikMap["telefon"] = telefon
+
 
                         saveUserDataToDatabase(userId)
                     }

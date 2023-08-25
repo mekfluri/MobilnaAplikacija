@@ -12,7 +12,9 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import com.example.a18478.databinding.ActivityMapsBinding
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
@@ -42,8 +44,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
     private lateinit var clusterManager: ClusterManager<Event>
     private lateinit var eventsRef: DatabaseReference
     private lateinit var binding: ActivityMapsBinding
-    private lateinit var allEventsList: List<Event>
+    private lateinit var allEventsList: MutableList<Event>
     private lateinit var checkBoxNearby: CheckBox
+    private lateinit var mapViewModel: MapViewModel
+    private val DEFAULT_ZOOM = 15.0f
+
+
 
 
     private val LOCATION_PERMISSION_REQUEST_CODE = 1
@@ -59,7 +65,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         editTextStartDate = findViewById(R.id.editTextStartDate)
         btnApplyFilter = findViewById(R.id.btnApplyFilter)
         checkBoxNearby = findViewById(R.id.checkBoxNearby)
-
+        mapViewModel = ViewModelProvider(this).get(MapViewModel::class.java)
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
@@ -119,6 +125,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             filterOptionsContainer.visibility = View.VISIBLE
         }
     }
+    override fun onResume() {
+        super.onResume()
+
+        if (ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            mMap.isMyLocationEnabled = true
+            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+                location?.let {
+                    val userLatLng = LatLng(location.latitude, location.longitude)
+                    mapViewModel.userLocation = userLatLng
+                }
+            }
+        }
+        updateEventListAndMap()
+    }
+
 
 
     override fun onRequestPermissionsResult(
@@ -142,7 +168,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
 
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
-
+        mapViewModel.userLocation?.let { location ->
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, DEFAULT_ZOOM))
+        }
         mMap.setOnMyLocationClickListener { location ->
             val currentLatLng = LatLng(location.latitude, location.longitude)
             mMap.addMarker(MarkerOptions().position(currentLatLng).title("Your Location"))
@@ -247,6 +275,42 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         val dateFormat = SimpleDateFormat("dd.MM.yyyy.", Locale.getDefault())
         return dateFormat.parse(dateString) ?: Date()
     }
+    fun updateEventListAndMap() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val snapshot = eventsRef.get().await()
+                val updatedEvents = mutableListOf<Event>()
+                snapshot.children.forEach { eventSnapshot ->
+                    val eventId = eventSnapshot.key ?: ""
+                    val event = eventSnapshot.getValue(Event::class.java)
+                    event?.let {
+                        it.eventId = eventId // Assign the eventId to the event object
+                        updatedEvents.add(it)
+                    }
+                }
+
+                // Update the allEventsList with the updated events
+
+                allEventsList.clear()
+                allEventsList.addAll(updatedEvents)
+
+
+                // Update the map markers
+                runOnUiThread {
+                    clusterManager.clearItems() // Clear existing items from ClusterManager
+                    for (event in allEventsList) {
+                        addEventMarker(event)
+                    }
+                    clusterManager.cluster() // Cluster the new markers
+                    // Other UI updates if needed
+                }
+            } catch (e: Exception) {
+                runOnUiThread {
+                    Log.e("MapsActivity", "Failed to fetch events: ${e.message}")
+                }
+            }
+        }
+    }
 
 
     private fun applyFilter() {
@@ -257,7 +321,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         val editTextDateOfMaking = findViewById<EditText>(R.id.editTextDateOfMaking).text.toString()
 
         val filteredEvents = if (isNearbyChecked) {
-            // Apply the "2km from user's current location" filter
+            // Apply the "2km ffrom user's current location" filter
             val currentLatLng = LatLng(mMap.myLocation.latitude, mMap.myLocation.longitude)
             val maxRadius = 2000 // in meters
             allEventsList.filter { event ->
@@ -276,10 +340,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             typeFilter && dateFilter && dateOfMakingFilter
         }.toMutableList()
 
-        findUserByUsername(editTextAuthor) { user ->
-            if (user != null) {
+        findUserByUsername(editTextAuthor) { authorId ->
+            if (!authorId.isNullOrEmpty()) {
                 filteredEvents.retainAll { event ->
-                    event.creatorUserId == user.userId
+                    event.creatorUserId == authorId
                 }
             }
 
@@ -345,6 +409,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             clusterManager.cluster() // Cluster the new filtered markers
         }
     }
+    private fun findUserByUsername(username: String, callback: (String?) -> Unit) {
+        val databaseReference = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app/")
+            .getReference("korisnici")
+
+        databaseReference.orderByChild("korisnickoIme").equalTo(username)
+            .addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    val userSnapshot = snapshot.children.firstOrNull()
+                    val userId = userSnapshot?.key
+                    callback(userId)
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    // Handle errors, if any
+                    callback(null)
+                }
+            })
+    }
+
 
 
 
@@ -354,24 +437,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         return results[0]
     }
 
-    private fun findUserByUsername(username: String, callback: (User?) -> Unit) {
-        val databaseUrl = "https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app/"
-        val databaseReference = FirebaseDatabase.getInstance(databaseUrl).getReference("korisnici")
-
-        databaseReference.orderByChild("username").equalTo(username)
-            .addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(snapshot: DataSnapshot) {
-                    val userSnapshot = snapshot.children.firstOrNull()
-                    val user = userSnapshot?.getValue(User::class.java)
-                    callback(user)
-                }
-
-                override fun onCancelled(error: DatabaseError) {
-                    // Handle errors, if any
-                    callback(null)
-                }
-            })
-    }
 
 
 

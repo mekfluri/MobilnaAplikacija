@@ -9,9 +9,10 @@
         android:id="@+id/eventTitleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:layout_marginTop="8dp"
         android:text="Event Title"
-        android:layout_marginTop="8dp" />
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:textColor="@color/white" />
 
     <TextView
         android:id="@+id/eventLocationTextView"

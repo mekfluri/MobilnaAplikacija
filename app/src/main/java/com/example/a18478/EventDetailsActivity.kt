@@ -186,7 +186,10 @@ class EventDetailsActivity : AppCompatActivity() {
 
                     userEventRef.setValue(true)
                         .addOnSuccessListener {
-                            Log.d("EventDetailsActivity", "User attendance updated for event: $eventKey")
+                            Log.d("EventDetailsActivity", "User attendance updated for event:" +
+                                    "" +
+                                    "" +
+                                    " $eventKey")
 
                             // Refresh the event details after the user buys the ticket
                             displayEventDetails()
