@@ -14,14 +14,19 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.a18478.databinding.ActivityMapsBinding
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.database.*
 import com.google.maps.android.clustering.Cluster
 import com.google.maps.android.clustering.ClusterManager
@@ -47,6 +52,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
     private lateinit var allEventsList: MutableList<Event>
     private lateinit var checkBoxNearby: CheckBox
     private lateinit var mapViewModel: MapViewModel
+
+    private val LOCATION_REQUEST_INTERVAL = 10000L // Update interval in milliseconds (e.g., 10 seconds)
+    private val LOCATION_REQUEST_FASTEST_INTERVAL = 5000L // Fastest update interval in milliseconds (e.g., 5 seconds)
+
+    // Declare the location request and other variables
+    private lateinit var locationRequest: LocationRequest
+    private lateinit var locationCallback: LocationCallback
     private val DEFAULT_ZOOM = 15.0f
 
 
@@ -59,7 +71,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         super.onCreate(savedInstanceState)
         binding = ActivityMapsBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        allEventsList = mutableListOf()
         filterOptionsContainer = findViewById(R.id.filterOptionsContainer)
         spinnerEventType = findViewById(R.id.spinner_event_types)
         editTextStartDate = findViewById(R.id.editTextStartDate)
@@ -125,25 +137,77 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             filterOptionsContainer.visibility = View.VISIBLE
         }
     }
+
     override fun onResume() {
         super.onResume()
 
+        // Check for location permission
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
         ) {
-            mMap.isMyLocationEnabled = true
-            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-            fusedLocationClient.lastLocation.addOnSuccessListener { location ->
-                location?.let {
-                    val userLatLng = LatLng(location.latitude, location.longitude)
-                    mapViewModel.userLocation = userLatLng
+            val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+            mapFragment.getMapAsync { googleMap ->
+                mMap = googleMap
+                mMap.isMyLocationEnabled = true
+                if (allEventsList == null) {
+                    allEventsList = mutableListOf()
+                }
+            // Create a location request
+            locationRequest = LocationRequest.create().apply {
+                interval = LOCATION_REQUEST_INTERVAL
+                fastestInterval = LOCATION_REQUEST_FASTEST_INTERVAL
+                priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+            }
+
+            // Create a location callback
+            locationCallback = object : LocationCallback() {
+                override fun onLocationResult(locationResult: LocationResult) {
+                    locationResult.lastLocation?.let { location ->
+                        val userLatLng = LatLng(location.latitude, location.longitude)
+                        mapViewModel.userLocation = userLatLng
+
+                        // Update the map or perform any other actions with the user's location here
+                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, DEFAULT_ZOOM))
+
+                        // Check proximity to events and show pop-up
+                        val proximityThreshold = 100 // In meters
+
+                        val allEventsListCopy = ArrayList(allEventsList)
+
+                        for (event in allEventsListCopy) {
+                            val eventLocation = Location("")
+                            eventLocation.latitude = event.latitude
+                            eventLocation.longitude = event.longitude
+
+                            val distance = location.distanceTo(eventLocation) // Calculate the distance
+
+
+
+                            // If the distance is within the threshold, show a Snackbar
+                            if (distance <= proximityThreshold) {
+                                Snackbar.make(
+                                    findViewById(android.R.id.content),
+                                    "Blizu vas je ${event.eventType}!",
+                                    Snackbar.LENGTH_SHORT
+                                ).show()
+
+
+                            }
+                        }
+
+                        clusterManager.cluster()
+
+                    }
                 }
             }
+
+            val fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+            fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, null)
         }
-        updateEventListAndMap()
-    }
+    }}
+
 
 
 

@@ -37,7 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginTop="150dp"
+        android:layout_marginTop="200dp"
         android:padding="16dp"
         android:visibility="gone">
 
@@ -47,23 +47,30 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:entries="@array/event_types"
-            android:prompt="@string/select_event_type" />
+            android:prompt="@string/select_event_type"
+            android:background="#FFFFFF"/>
 
         <EditText
             android:id="@+id/editTextStartDate"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Datum početka (dd.MM.yyyy.)" />
+            android:hint="Datum početka (dd.MM.yyyy.)"
+            android:background="#FFFFFF"
+            android:layout_marginTop="8dp"/>
         <EditText
             android:id="@+id/editTextDateOfMaking"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Datum postavljanja (dd.MM.yyyy.)" />
+            android:hint="Datum postavljanja (dd.MM.yyyy.)"
+            android:background="#FFFFFF"
+            android:layout_marginTop="8dp"/>/>
         <EditText
             android:id="@+id/editTextAuthor"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Autor" />
+            android:hint="Autor"
+            android:background="#FFFFFF"
+            android:layout_marginTop="8dp"/>/>
 
         <!-- Checkbox for "2km from user's current location" filter -->
         <LinearLayout
@@ -71,7 +78,8 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="8dp"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:background="#FFFFFF">
 
             <CheckBox
                 android:id="@+id/checkBoxNearby"
