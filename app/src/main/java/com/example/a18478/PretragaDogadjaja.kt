@@ -46,17 +46,16 @@ class PretragaDogadjaja : AppCompatActivity() {
             fetchEventsOfPreferredTypes(preferredEventTypes)
         }
 
-        // Other UI setup code
-
+        // Ostali kod za postavljanje korisničkog interfejsa
 
     }
 
-
+    // Funkcija za dohvatanje preferiranih tipova događaja korisnika
     private suspend fun fetchPreferredEventTypes(): List<String> {
         val currentUser = FirebaseAuth.getInstance().currentUser
         val preferredEventTypes = mutableListOf<String>()
 
-        // Fetch events for the current user using coroutines
+        // Dohvatanje događaja za trenutnog korisnika koristeći korutine
         currentUser?.let { user ->
             val userId = user.uid
             val userEventsRef = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app")
@@ -65,7 +64,7 @@ class PretragaDogadjaja : AppCompatActivity() {
                 .child("events")
 
             try {
-                val snapshot = userEventsRef.get().await() // Use await() to get the result asynchronously
+                val snapshot = userEventsRef.get().await() // Koristimo await() da bismo asinhrono dobili rezultate
 
                 for (eventSnapshot in snapshot.children) {
                     val eventKey = eventSnapshot.key
@@ -75,7 +74,7 @@ class PretragaDogadjaja : AppCompatActivity() {
                             .child(eventKey)
                             .child("eventType")
 
-                        val eventTypeSnapshot = eventTypeRef.get().await() // Use await() here as well
+                        val eventTypeSnapshot = eventTypeRef.get().await() // Takođe koristimo await() ovde
                         val eventType = eventTypeSnapshot.getValue(String::class.java)
                         eventType?.let {
                             preferredEventTypes.add(it)
@@ -83,14 +82,15 @@ class PretragaDogadjaja : AppCompatActivity() {
                     }
                 }
             } catch (e: Exception) {
-                // Handle any potential exceptions here
-                // e.g., log an error or show a toast message
+                // Obrada eventualnih izuzetaka
+                // npr. logovanje greške ili prikazivanje poruke putem toasta
             }
         }
 
         return preferredEventTypes
     }
 
+    // Funkcija za dohvatanje događaja preferiranih tipova
     private fun fetchEventsOfPreferredTypes(preferredEventTypes: List<String>) {
         eventsRef.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
@@ -99,7 +99,7 @@ class PretragaDogadjaja : AppCompatActivity() {
                 for (eventSnapshot in snapshot.children) {
                     val event = eventSnapshot.getValue(Event::class.java)
                     event?.let {
-                        // Check if the event type matches the user's preferred types
+                        // Provera da li tip događaja odgovara preferiranim tipovima korisnika
                         if (it.eventType in preferredEventTypes) {
                             eventsList.add(it)
                         }
@@ -110,44 +110,13 @@ class PretragaDogadjaja : AppCompatActivity() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle error if fetching data fails
-                Toast.makeText(this@PretragaDogadjaja, "Failed to fetch data: ${error.message}", Toast.LENGTH_SHORT).show()
+                // Obrada greške u slučaju problema sa dohvatanjem podataka
+                Toast.makeText(this@PretragaDogadjaja, "Neuspelo dohvatanje podataka: ${error.message}", Toast.LENGTH_SHORT).show()
             }
         })
     }
 
-    @SuppressLint("NotifyDataSetChanged")
-    private fun filterEvents(query: String) {
-        // Log the start of the filtering process
-        Log.d("FilterEvents", "Filtering events with query: $query")
-
-        filteredEventsList.clear()
-        for (event in eventsList) {
-            if (eventContainsQuery(event, query)) {
-                filteredEventsList.add(event)
-            }
-        }
-
-        // Log the end of the filtering process
-        Log.d("FilterEvents", "Filtered events count: ${filteredEventsList.size}")
-
-        eventsAdapter.filteredEventsList = filteredEventsList
-        eventsAdapter.notifyDataSetChanged()
-    }
 
 
 
-    private fun eventContainsQuery(event: Event, query: String): Boolean {
-        val queryLowerCase = query.toLowerCase(Locale.getDefault())
-        val titleContainsQuery = event.title?.toLowerCase(Locale.getDefault())?.contains(queryLowerCase) ?: false
-        val descriptionContainsQuery = event.description?.toLowerCase(Locale.getDefault())?.contains(queryLowerCase) ?: false
-        return titleContainsQuery || descriptionContainsQuery
-    }
-
-
-    private fun parseDate(dateString: String): Date {
-        // Parse the date string to a Date object using SimpleDateFormat
-        val dateFormat = SimpleDateFormat("dd.MM.yyyy.", Locale.getDefault())
-        return dateFormat.parse(dateString) ?: Date(0)
-    }
 }

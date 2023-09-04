@@ -19,7 +19,7 @@ import com.google.android.gms.tasks.OnSuccessListener
 class Home : AppCompatActivity(), OnMapReadyCallback {
     private var googleMap: GoogleMap? = null
     private var fusedLocationClient: FusedLocationProviderClient? = null
-
+     // za prikaz mape i trenutne korisnikove lokacije, ali je ne koristim, drugacije sam implementirala mapu
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_home)

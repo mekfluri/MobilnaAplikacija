@@ -12,9 +12,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var auth: FirebaseAuth
     private lateinit var signOutBtn: Button
-    private lateinit var registrujBtn: Button
-    private lateinit var korisnickoImeTv: EditText
-    private lateinit var sifraLoginTv: EditText
+    private lateinit var registerBtn: Button
+    private lateinit var usernameTv: EditText
+    private lateinit var passwordLoginTv: EditText
     private lateinit var loginBtn: Button
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -23,24 +23,20 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         auth = FirebaseAuth.getInstance()
-       // signOutBtn = findViewById(R.id.signOutBtn)
-        registrujBtn = findViewById(R.id.registrujBtn)
-        korisnickoImeTv = findViewById(R.id.korisnickoImeTv)
-        sifraLoginTv = findViewById(R.id.sifraLoginTV)
-        loginBtn = findViewById(R.id.loginBtn)
-//
-//       signOutBtn.setOnClickListener {
-//            auth.signOut()
-//            startActivity(Intent(this, PhoneActivity::class.java))
-//        }
 
-        registrujBtn.setOnClickListener {
+        registerBtn = findViewById(R.id.registrujBtn)
+        usernameTv = findViewById(R.id.korisnickoImeTv)
+        passwordLoginTv = findViewById(R.id.sifraLoginTV)
+        loginBtn = findViewById(R.id.loginBtn)
+
+
+        registerBtn.setOnClickListener {
             startActivity(Intent(this, Registracija::class.java))
         }
 
         loginBtn.setOnClickListener {
-            val username = korisnickoImeTv.text.toString().trim()
-            val password = sifraLoginTv.text.toString().trim()
+            val username = usernameTv.text.toString().trim()
+            val password = passwordLoginTv.text.toString().trim()
 
 
             if (username.isNotEmpty() && password.isNotEmpty()) {

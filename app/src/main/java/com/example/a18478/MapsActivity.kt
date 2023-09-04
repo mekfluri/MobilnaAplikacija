@@ -22,7 +22,6 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -53,13 +52,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
     private lateinit var checkBoxNearby: CheckBox
     private lateinit var mapViewModel: MapViewModel
 
-    private val LOCATION_REQUEST_INTERVAL = 10000L // Update interval in milliseconds (e.g., 10 seconds)
-    private val LOCATION_REQUEST_FASTEST_INTERVAL = 5000L // Fastest update interval in milliseconds (e.g., 5 seconds)
+    private val LOCATION_REQUEST_INTERVAL = 10000L // Interval ažuriranja u milisekundama (npr. 10 sekundi)
+    private val LOCATION_REQUEST_FASTEST_INTERVAL = 5000L // Najbrži interval ažuriranja u milisekundama (npr. 5 sekundi)
 
-    // Declare the location request and other variables
+    // Deklarišite zahtev za lokaciju i druge varijable
     private lateinit var locationRequest: LocationRequest
     private lateinit var locationCallback: LocationCallback
-    private val DEFAULT_ZOOM = 15.0f
+    private val DEFAULT_ZOOM = 0.0f
 
 
 
@@ -80,11 +79,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         mapViewModel = ViewModelProvider(this).get(MapViewModel::class.java)
 
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
-        mapFragment.getMapAsync(this)
+        mapFragment.getMapAsync(this) //Za prikaz mape
 
         eventsRef = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app").getReference("events")
 
-        if (ContextCompat.checkSelfPermission(
+        if (ContextCompat.checkSelfPermission( //provera dozvole za pristup lokaciji uredjaja
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED
@@ -141,7 +140,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
     override fun onResume() {
         super.onResume()
 
-        // Check for location permission
+        // Proveri dozvolu za lokaciju
         if (ContextCompat.checkSelfPermission(
                 this,
                 Manifest.permission.ACCESS_FINE_LOCATION
@@ -154,25 +153,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
                 if (allEventsList == null) {
                     allEventsList = mutableListOf()
                 }
-            // Create a location request
+                // Kreirajte zahtev za lokaciju
             locationRequest = LocationRequest.create().apply {
-                interval = LOCATION_REQUEST_INTERVAL
+                interval = LOCATION_REQUEST_INTERVAL //na svakih 10sec
                 fastestInterval = LOCATION_REQUEST_FASTEST_INTERVAL
                 priority = LocationRequest.PRIORITY_HIGH_ACCURACY
             }
 
-            // Create a location callback
+                //  povratni poziv lokacije
             locationCallback = object : LocationCallback() {
                 override fun onLocationResult(locationResult: LocationResult) {
                     locationResult.lastLocation?.let { location ->
                         val userLatLng = LatLng(location.latitude, location.longitude)
                         mapViewModel.userLocation = userLatLng
 
-                        // Update the map or perform any other actions with the user's location here
-                        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, DEFAULT_ZOOM))
+                        // Ažurirajte mapu ili izvršite bilo koju drugu radnju sa korisnikovom lokacijom ovde
+                        //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLatLng, DEFAULT_ZOOM))
 
-                        // Check proximity to events and show pop-up
-                        val proximityThreshold = 100 // In meters
+                        // Proverite blizinu događaja i prikažite iskačući prozor
+                        val proximityThreshold = 100 // U metrima
 
                         val allEventsListCopy = ArrayList(allEventsList)
 
@@ -181,11 +180,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
                             eventLocation.latitude = event.latitude
                             eventLocation.longitude = event.longitude
 
-                            val distance = location.distanceTo(eventLocation) // Calculate the distance
+                            val distance = location.distanceTo(eventLocation) //izracunaj distancu
 
 
 
-                            // If the distance is within the threshold, show a Snackbar
+                            // ako je u blizini korisnika ispisi tip dogadjaja
                             if (distance <= proximityThreshold) {
                                 Snackbar.make(
                                     findViewById(android.R.id.content),
@@ -211,20 +210,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
 
 
 
-    override fun onRequestPermissionsResult(
+    override fun onRequestPermissionsResult( //ako korisnik odbije ili odobri koriscnenje lokacije
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) { //ako je odobrio
                 if (ContextCompat.checkSelfPermission(
                         this,
                         Manifest.permission.ACCESS_FINE_LOCATION
                     ) == PackageManager.PERMISSION_GRANTED
                 ) {
-                    mMap.isMyLocationEnabled = true
+                    mMap.isMyLocationEnabled = true //prikazuje korisnikovu lokaciju
                 }
             }
         }
@@ -240,8 +239,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             mMap.addMarker(MarkerOptions().position(currentLatLng).title("Your Location"))
             mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLatLng))
 
-            // Calculate distance and filter events within a certain radius (e.g., 5 kilometers)
-            val maxRadius = 5000 // in meters
+            // Izračunajte udaljenost i filtrirajte događaje unutar određenog radijusa (npr. 5 kilometara)
+            val maxRadius = 5000 // u metrima, prikazuje evente na 5km od kosirnikove lokacije
             val nearbyEvents = allEventsList.filter { event ->
                 val eventLatLng = LatLng(event.latitude, event.longitude)
                 val distance = FloatArray(1)
@@ -253,12 +252,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             }
 
 
-            clusterManager.clearItems() // Clear existing items from ClusterManager
+            clusterManager.clearItems() // Obriši postojeće stavke iz ClusterManager-a
             for (event in nearbyEvents) {
                 addEventMarker(event)
             }
 
-            clusterManager.cluster() // Cluster the new filtered markers
+            clusterManager.cluster() // Grupisanje novih filtriranih markera
         }
 
 
@@ -283,7 +282,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
                         val eventId = eventSnapshot.key ?: ""
                         val event = eventSnapshot.getValue(Event::class.java)
                         event?.let {
-                            it.eventId = eventId // Assign the eventId to the event object
+                            it.eventId = eventId // Dodela id eventa (ne treba ti)
                             events.add(it)
                         }
                     }
@@ -293,8 +292,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
                     }
                 }
             } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Log.e("MapsActivity", "Failed to fetch events: ${e.message}")
+                withContext(Dispatchers.Main) {//prelazak na glavnu nit
+                    Log.e("MapsActivity", "Neuspesno preuzimanje dogadjaja: ${e.message}")
                 }
             }
         }
@@ -302,7 +301,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
 
     private fun openAddEventFragment(selectedLocation: LatLng) {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
-        fragmentTransaction.replace(R.id.fragment_container, AddEventFragment.newInstance(selectedLocation))
+        fragmentTransaction.replace(R.id.fragment_container, AddEventFragment.newInstance(selectedLocation)) //prosledjujes mu izabranu lokaciju
         fragmentTransaction.addToBackStack(null)
         fragmentTransaction.commit()
     }
@@ -315,7 +314,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             .snippet("${event.date}, ${event.time}\n${event.description}")
 
         clusterManager.addItem(event)
-        clusterManager.cluster()
+        clusterManager.cluster() //grupisanje markera u klastere
     }
 
     override fun onClusterClick(cluster: Cluster<Event>): Boolean {
@@ -329,7 +328,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
 
     private fun openEventDetailsActivity(event: Event) {
         val intent = Intent(this, EventDetailsActivity::class.java)
-        intent.putExtra(EventDetailsActivity.EXTRA_EVENT, event)
+        intent.putExtra(EventDetailsActivity.EXTRA_EVENT, event) //prosledjujem event za koj treba da se otvori activity
         intent.putExtra(EventDetailsActivity.EXTRA_EVENT_ID, event.eventId) // Pass the eventId
         startActivity(intent)
     }
@@ -339,55 +338,62 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         val dateFormat = SimpleDateFormat("dd.MM.yyyy.", Locale.getDefault())
         return dateFormat.parse(dateString) ?: Date()
     }
+    //Ne pozivas ovu funkciju nigde mozes da je obrises
     fun updateEventListAndMap() {
         CoroutineScope(Dispatchers.IO).launch {
             try {
+                // Dobijanje trenutnog stanja događaja iz baze podataka
                 val snapshot = eventsRef.get().await()
                 val updatedEvents = mutableListOf<Event>()
+
+                // Iteracija kroz sve događaje iz baze podataka
                 snapshot.children.forEach { eventSnapshot ->
                     val eventId = eventSnapshot.key ?: ""
                     val event = eventSnapshot.getValue(Event::class.java)
+
+                    // Ako je događaj uspešno pročitan, dodeljujemo mu eventId
                     event?.let {
-                        it.eventId = eventId // Assign the eventId to the event object
+                        it.eventId = eventId
                         updatedEvents.add(it)
                     }
                 }
 
-                // Update the allEventsList with the updated events
-
+                // Ažuriranje liste svih događaja sa novim događajima
                 allEventsList.clear()
                 allEventsList.addAll(updatedEvents)
 
-
-                // Update the map markers
+                // Ažuriranje markera na mapi i klasterisanje novih markera
                 runOnUiThread {
-                    clusterManager.clearItems() // Clear existing items from ClusterManager
+                    clusterManager.clearItems() // Brisanje postojećih markera iz ClusterManager-a
                     for (event in allEventsList) {
-                        addEventMarker(event)
+                        addEventMarker(event) // Dodavanje novih markera na mapu
                     }
-                    clusterManager.cluster() // Cluster the new markers
-                    // Other UI updates if needed
+                    clusterManager.cluster() // Klasterisanje novih markera
+
+
                 }
             } catch (e: Exception) {
+                // U slučaju greške pri preuzimanju događaja, prijavljujemo grešku u LogCat
                 runOnUiThread {
-                    Log.e("MapsActivity", "Failed to fetch events: ${e.message}")
+                    Log.e("MapsActivity", "Nije uspelo preuzimanje događaja: ${e.message}")
                 }
             }
         }
     }
 
 
+
     private fun applyFilter() {
         val selectedEventType = spinnerEventType.selectedItem.toString()
         val startDateString = editTextStartDate.text.toString()
-        val isNearbyChecked = checkBoxNearby.isChecked // Get the state of the checkbox
+        val isNearbyChecked = checkBoxNearby.isChecked // Dobijanje stanja checkboxa
         val editTextAuthor = findViewById<EditText>(R.id.editTextAuthor).text.toString()
         val editTextDateOfMaking = findViewById<EditText>(R.id.editTextDateOfMaking).text.toString()
 
         val filteredEvents = if (isNearbyChecked) {
-            // Apply the "2km ffrom user's current location" filter
+            // Primeni filter "2km od trenutne lokacije korisnika"
             val currentLatLng = LatLng(mMap.myLocation.latitude, mMap.myLocation.longitude)
-            val maxRadius = 2000 // in meters
+            val maxRadius = 2000 // u metrima
             allEventsList.filter { event ->
                 calculateDistance(
                     currentLatLng.latitude, currentLatLng.longitude,
@@ -397,7 +403,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
         } else {
             allEventsList
         }.filter { event ->
-            // Filter by event type, start date, and date of making
+            // Filtriranje prema vrsti događaja, datumu početka i datumu kreiranja
             val typeFilter = selectedEventType.isEmpty() || selectedEventType == event.eventType
             val dateFilter = startDateString.isEmpty() || event.date == startDateString
             val dateOfMakingFilter = editTextDateOfMaking.isEmpty() || event.dateOfMaking == editTextDateOfMaking
@@ -412,67 +418,68 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
             }
 
             val sortedEvents = filteredEvents.filter { event ->
-                // Filter out events with null values for selected sorting criteria
+                // Filtriraj događaje sa null vrednostima za odabrane kriterijume za sortiranje
                 val validDate = event.date != null || startDateString.isEmpty()
                 val validCreator = !event.creatorUserId.isNullOrEmpty() || editTextAuthor.isEmpty()
                 val validType = !event.eventType.isNullOrEmpty() || selectedEventType.isEmpty()
                 val validDateOfMaking = !event.dateOfMaking.isNullOrEmpty() || editTextDateOfMaking.isEmpty()
                 validDate && validCreator && validType && validDateOfMaking
             }.sortedWith(compareBy<Event> { event ->
-                // Sort by date if valid
+                // Sortiraj po datumu ako je validan tj ako nije null
                 if (event.date != null && startDateString.isNotEmpty()) {
-                    Log.d("Sorting", "Sorting by date: ${event.date}")
+                    Log.d("Sortiranje", "Sortiranje po datumu: ${event.date}")
                     event.date
                 } else {
-                    Log.d("Sorting", "Date is null or startDateString is empty")
+                    Log.d("Sortiranje", "Datum je null ili startDateString je prazan")
                     ""
                 }
             }.thenBy { event ->
-                // Sort by creatorUserId if valid
+                // Sortiraj po creatorUserId ako je validan
                 if (!event.creatorUserId.isNullOrEmpty() && editTextAuthor.isNotEmpty()) {
-                    Log.d("Sorting", "Sorting by creatorUserId: ${event.creatorUserId}")
+                    Log.d("Sortiranje", "Sortiranje po creatorUserId: ${event.creatorUserId}")
                     event.creatorUserId
                 } else {
-                    Log.d("Sorting", "creatorUserId is null or editTextAuthor is empty")
+                    Log.d("Sortiranje", "creatorUserId je null ili editTextAuthor je prazan")
                     ""
                 }
             }.thenBy { event ->
-                // Sort by eventType if valid
+                // Sortiraj po vrsti događaja ako je validna
                 if (!event.eventType.isNullOrEmpty() && selectedEventType.isNotEmpty()) {
-                    Log.d("Sorting", "Sorting by eventType: ${event.eventType}")
+                    Log.d("Sortiranje", "Sortiranje po vrsti događaja: ${event.eventType}")
                     event.eventType
                 } else {
-                    Log.d("Sorting", "eventType is null or selectedEventType is empty")
+                    Log.d("Sortiranje", "eventType je null ili selectedEventType je prazan")
                     ""
                 }
             }.thenBy { event ->
-                // Sort by dateOfMaking if valid
+                // Sortiraj po datumu kreiranja ako je validan
                 if (!event.dateOfMaking.isNullOrEmpty() && editTextDateOfMaking.isNotEmpty()) {
-                    Log.d("Sorting", "Sorting by dateOfMaking: ${event.dateOfMaking}")
+                    Log.d("Sortiranje", "Sortiranje po datumu kreiranja: ${event.dateOfMaking}")
                     event.dateOfMaking
                 } else {
-                    Log.d("Sorting", "dateOfMaking is null or editTextDateOfMaking is empty")
+                    Log.d("Sortiranje", "dateOfMaking je null ili editTextDateOfMaking je prazan")
                     ""
                 }
             }.thenBy { event ->
-                // Sort by isNearbyChecked (if not nearby, push to the end)
+                // Sortiraj po isNearbyChecked
                 if (!isNearbyChecked) {
-                    Log.d("Sorting", "Sorting by isNearbyChecked: 1")
+                    Log.d("Sortiranje", "Sortiranje po isNearbyChecked: 1")
                     1
                 } else {
-                    Log.d("Sorting", "Sorting by isNearbyChecked: 0")
+                    Log.d("Sortiranje", "Sortiranje po isNearbyChecked: 0")
                     0
                 }
             }).toMutableList()
 
-            clusterManager.clearItems() // Clear existing items from ClusterManager
+            clusterManager.clearItems() // Obriši postojeće stavke iz ClusterManager-a
             for (event in sortedEvents) {
                 addEventMarker(event)
             }
 
-            clusterManager.cluster() // Cluster the new filtered markers
+            clusterManager.cluster() // Klasterizuj nove filtrirane markere
         }
     }
+
     private fun findUserByUsername(username: String, callback: (String?) -> Unit) {
         val databaseReference = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app/")
             .getReference("korisnici")
@@ -486,7 +493,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
                 }
 
                 override fun onCancelled(error: DatabaseError) {
-                    // Handle errors, if any
+                    // Greske
                     callback(null)
                 }
             })
@@ -497,7 +504,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, ClusterManager.OnC
 
     private fun calculateDistance(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Float {
         val results = FloatArray(1)
-        Location.distanceBetween(lat1, lon1, lat2, lon2, results)
+        Location.distanceBetween(lat1, lon1, lat2, lon2, results) //andriodova metoda za racunanje udaljenosti
         return results[0]
     }
 

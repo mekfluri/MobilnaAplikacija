@@ -12,6 +12,7 @@ class UserRankingActivity : AppCompatActivity() {
     private lateinit var rankingRecyclerView: RecyclerView
     private lateinit var rankingAdapter: UserRankingAdapter
 
+    // Referenca ka Firebase bazi podataka za korisnike
     private val usersRef: DatabaseReference by lazy {
         FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app")
             .getReference("korisnici")
@@ -26,32 +27,34 @@ class UserRankingActivity : AppCompatActivity() {
         rankingRecyclerView.adapter = rankingAdapter
         rankingRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Fetch and display user rankings
-        fetchUserRankings()
+        // Preuzmi i prikaži rangiranje korisnika
+        preuzmiRangiranjeKorisnika()
     }
 
-    private fun fetchUserRankings() {
+    private fun preuzmiRangiranjeKorisnika() {
+        // Postavljanje redosleda korisnika prema poenima u Firebase bazi podataka
         usersRef.orderByChild("poeni").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 usersList.clear()
 
+                // Iteriranje kroz korisnike i izvlačenje njihovih podataka
                 for (userSnapshot in snapshot.children) {
-                    val username = userSnapshot.child("korisnickoIme").getValue(String::class.java) ?: ""
-                    val points = userSnapshot.child("poeni").getValue(Int::class.java) ?: 0
-                    val userRankingItem = UserRankingItem(username, points)
-                    usersList.add(userRankingItem)
+                    val korisnickoIme = userSnapshot.child("korisnickoIme").getValue(String::class.java) ?: ""
+                    val poeni = userSnapshot.child("poeni").getValue(Int::class.java) ?: 0
+                    val stavkaRangiranjaKorisnika = UserRankingItem(korisnickoIme, poeni)
+                    usersList.add(stavkaRangiranjaKorisnika)
                 }
 
-                // Sort the usersList in descending order based on points
+                // Sortiranje liste korisnika po opadajućem broju poena
                 usersList.sortByDescending { it.points }
 
+                // Obavesti adapter da je lista promenjena
                 rankingAdapter.notifyDataSetChanged()
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle the error if fetching user rankings fails
+                // Obrada greške ako ne uspe preuzimanje rangiranja korisnika
             }
         })
     }
-
 }

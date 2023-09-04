@@ -14,11 +14,11 @@ data class Review(
     val rating: Float = 0.0f,
     val comment: String = ""
 ) {
-    // Firebase Realtime Database requires a no-argument constructor
+
     constructor() : this("", 0.0f, "")
 }
 
 class ReviewSubmissionFragmentt : Fragment() {
-    // ... Rest of the code ...
+
 }
 

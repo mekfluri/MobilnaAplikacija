@@ -1,5 +1,4 @@
 package com.example.a18478
-
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -19,7 +18,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import android.Manifest
 import android.util.Log
-
 
 class Registracija : AppCompatActivity() {
 
@@ -46,19 +44,19 @@ class Registracija : AppCompatActivity() {
     private fun openCamera() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
             == PackageManager.PERMISSION_GRANTED) {
-            // Permission already granted, open the camera
-            Log.d("CameraApp", "Camera permission already granted. Opening camera...")
+            // Dozvola za kameru već odobrena, otvori kameru
+            Log.d("CameraApp", "Dozvola za kameru već odobrena. Otvaranje kamere...")
 
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
             if (intent.resolveActivity(packageManager) != null) {
-                Log.d("CameraApp", "Found camera app. Starting camera intent...")
+                Log.d("CameraApp", "Pronađena aplikacija za kameru. Pokretanje intenta za kameru...")
                 startActivityForResult(intent, CAMERA_ACTION_CODE)
             } else {
-                Log.e("CameraApp", "No camera app found.")
+                Log.e("CameraApp", "Nije pronađena aplikacija za kameru.")
             }
         } else {
-            // Request camera permission
-            Log.d("CameraApp", "Requesting camera permission...")
+            // Zatraži dozvolu za kameru
+            Log.d("CameraApp", "Zahtevanje dozvole za kameru...")
 
             ActivityCompat.requestPermissions(
                 this,
@@ -76,18 +74,14 @@ class Registracija : AppCompatActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == CAMERA_PERMISSION_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission granted, open the camera
+                // Dozvola odobrena, otvori kameru
                 openCamera()
             } else {
-                // Permission denied
-                Toast.makeText(this, "Camera permission denied.", Toast.LENGTH_SHORT).show()
+                // Dozvola odbijena
+                Toast.makeText(this, "Dozvola za kameru odbijena.", Toast.LENGTH_SHORT).show()
             }
         }
     }
-
-
-
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -96,7 +90,7 @@ class Registracija : AppCompatActivity() {
             val finalPhoto = bundle?.get("data") as Bitmap?
             binding.imageView3.setImageBitmap(finalPhoto)
 
-            // Process the image asynchronously using coroutines
+            // Obradi sliku asinhrono koristeći coroutines
             CoroutineScope(Dispatchers.IO).launch {
                 saveImageToStorage(finalPhoto)
             }
@@ -104,10 +98,10 @@ class Registracija : AppCompatActivity() {
     }
 
     private suspend fun saveImageToStorage(image: Bitmap?) {
-        // Perform image-saving operations here
+        // Obavljanje operacija za čuvanje slike ovde
         withContext(Dispatchers.IO) {
-            // Save the image to storage
-            // You can use methods like FileOutputStream to save the image
+            // Sačuvaj sliku u memoriju
+
         }
     }
 
@@ -117,18 +111,18 @@ class Registracija : AppCompatActivity() {
         ).reference
 
         korisnikMap["poeni"] = 0
-        korisnikMap["notifikacija"]=0
+        korisnikMap["notifikacija"] = 0
 
         database.child("korisnici").child(userId).setValue(korisnikMap)
             .addOnCompleteListener { dbTask ->
                 if (dbTask.isSuccessful) {
-                    Toast.makeText(this, "Registration successful!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Registracija uspešna!", Toast.LENGTH_SHORT).show()
                     val intent = Intent(this@Registracija, MainActivity::class.java)
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)// cistis sa vrha stek i kreiras novi zadatak ako ga nema
                     startActivity(intent)
                     finish()
                 } else {
-                    Toast.makeText(this, "Error saving data", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Greška pri čuvanju podataka", Toast.LENGTH_SHORT).show()
                 }
             }
     }
@@ -151,11 +145,10 @@ class Registracija : AppCompatActivity() {
                         korisnikMap["prezime"] = prezime
                         korisnikMap["telefon"] = telefon
 
-
                         saveUserDataToDatabase(userId)
                     }
                 } else {
-                    Toast.makeText(this, "Registration error", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "Greška pri registraciji", Toast.LENGTH_SHORT).show()
                 }
             }
     }

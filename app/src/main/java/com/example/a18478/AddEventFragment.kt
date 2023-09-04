@@ -19,6 +19,7 @@ import com.google.firebase.database.ValueEventListener
 
 class AddEventFragment : Fragment() {
     private var eventType: String? = null
+
     companion object {
         private const val ARG_SELECTED_LOCATION = "selected_location"
 
@@ -40,29 +41,31 @@ class AddEventFragment : Fragment() {
         binding = FragmentAddEventBinding.inflate(inflater, container, false)
         return binding.root
     }
+
+    // Funkcija koja se poziva nakon uspešnog dodavanja događaja
     private fun addEventSuccess() {
-        // Update the event list in the MapsActivity
+        // Ažuriranje liste događaja u MapsActivity
         val mapsActivity = activity as? MapsActivity
         mapsActivity?.updateEventListAndMap()
 
-        // Close the fragment
+        // Zatvaranje fragmenta
         requireActivity().supportFragmentManager.beginTransaction().remove(this).commit()
     }
-
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val selectedLocation = arguments?.getParcelable<LatLng>(ARG_SELECTED_LOCATION)
 
-        // Show the selected location on the map using a marker or any other visual representation.
-        // You can also display the latitude and longitude values in TextViews for better clarity.
+        // Prikazivanje odabrane lokacije na mapi pomoću markera ili nekog drugog vizualnog prikaza.
+        // Takođe se mogu prikazati vrednosti latitude i longitude u TextView-ima radi bolje preglednosti.
         val spinner2 = binding.spinner2
         val eventTypesArray = resources.getStringArray(R.array.event_types)
         val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, eventTypesArray)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinner2.adapter = adapter
 
+        // Slušalac za odabir tipa događaja iz Spinner-a
         spinner2.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                 eventType = eventTypesArray[position]
@@ -72,29 +75,32 @@ class AddEventFragment : Fragment() {
                 eventType = null
             }
         }
+
+        // Slušalac za dugme "Sačuvaj"
         binding.saveButton.setOnClickListener {
-            // Get event details and the selected location here and save it to the Realtime Database.
+            // Dobavljanje detalja o događaju i odabrane lokacije i čuvanje u Realtime Database.
 
             val date = binding.dateEditText.text.toString()
             val time = binding.timeEditText.text.toString()
             val description = binding.descriptionEditText.text.toString()
             val currentUser = FirebaseAuth.getInstance().currentUser
             val userId = currentUser?.uid
-            // Save the event to the Realtime Database under the "events" node
+
+            // Čuvanje događaja u Realtime Database pod čvorom "events"
             val eventsRef = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app").getReference("events")
             val eventKey = eventsRef.push().key
             eventKey?.let {
-                val userId = FirebaseAuth.getInstance().currentUser?.uid // Get the current active user ID
+                val userId = FirebaseAuth.getInstance().currentUser?.uid // Dobavljanje ID-a trenutno aktivnog korisnika
                 val event = Event(eventType!!, date, time, description, selectedLocation?.latitude ?: 0.0, selectedLocation?.longitude ?: 0.0, userId ?: "")
 
                 eventsRef.child(it).setValue(event)
                     .addOnSuccessListener {
                         Toast.makeText(requireContext(), "Dogadjaj sačuvan uspešno", Toast.LENGTH_SHORT).show()
 
-                        // Get the current active user ID
+                        // Dobavljanje ID-a trenutno aktivnog korisnika
                         val userId = FirebaseAuth.getInstance().currentUser?.uid
 
-                        // Update the points attribute of the current active user
+                        // Ažuriranje atributa "poeni" trenutno aktivnog korisnika
                         userId?.let { uid ->
                             val userRef = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app").getReference("korisnici").child(uid)
                             userRef.child("poeni").addListenerForSingleValueEvent(object :
@@ -105,7 +111,7 @@ class AddEventFragment : Fragment() {
                                     userRef.child("poeni").setValue(newPoints)
                                         .addOnSuccessListener {
 
-                                               }
+                                        }
                                         .addOnFailureListener {
                                             Toast.makeText(requireContext(), "Greška u dodavanju poena", Toast.LENGTH_SHORT).show()
                                         }

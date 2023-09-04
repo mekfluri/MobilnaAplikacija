@@ -20,12 +20,12 @@ class EventListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_event_list)
 
         eventsRecyclerView = findViewById(R.id.reviewsRecyclerView)
-        eventAdapter = EventAdapter(emptyList()) // Initialize with an empty list
+        eventAdapter = EventAdapter(emptyList()) // Inicijalizacija sa praznom listom
 
         eventsRecyclerView.adapter = eventAdapter
         eventsRecyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Fetch events from the database
+        // Preuzimanje događaja iz baze podataka
         fetchEvents()
     }
 
@@ -41,12 +41,12 @@ class EventListActivity : AppCompatActivity() {
                     }
                 }
 
-                // Update the adapter with fetched events
+                // Ažuriranje adaptera sa preuzetim događajima
                 eventAdapter.updateEvents(eventsList)
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle database error here
+                // Obrada greške u vezi sa bazom podataka ovde
             }
         })
     }

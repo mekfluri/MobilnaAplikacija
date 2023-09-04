@@ -21,10 +21,10 @@ data class Event(
 
     init {
         val dateFormat = SimpleDateFormat("dd.MM.yyyy.", Locale.getDefault())
-        dateOfMaking = dateFormat.format(Date()) // Set current date as date of making
+        dateOfMaking = dateFormat.format(Date())
     }
 
-    // Add a secondary constructor with no arguments (required by Firebase)
+
     constructor() : this("", "", "", "", 0.0, 0.0, "", "", "")
 
     override fun getPosition(): LatLng {
@@ -39,7 +39,7 @@ data class Event(
         return "$date, $time - $description"
     }
 
-    // Implement Parcelable methods
+
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(eventType)
         parcel.writeString(date)
@@ -65,7 +65,7 @@ data class Event(
             return arrayOfNulls(size)
         }
     }
-
+ //za prenos podataka kroz activitije
     private constructor(parcel: Parcel) : this(
         eventType = parcel.readString() ?: "",
         date = parcel.readString() ?: "",

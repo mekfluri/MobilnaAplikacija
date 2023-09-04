@@ -15,9 +15,9 @@ import java.util.*
 class EventAdapter(private var events: List<Event>) :
     RecyclerView.Adapter<EventAdapter.ViewHolder>() {
 
-    public var filteredEventsList: List<Event> = events.toMutableList()
+    public var filteredEventsList: List<Event> = events.toMutableList() //ne treba ti bukv
 
-    // ViewHolder to hold references to the views in the event item layout
+    // ViewHolder za čuvanje referenci na prikazane elemente unutar izgleda događaja
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val eventTitle: TextView = itemView.findViewById(R.id.eventTitleTextView)
         val eventLocation: TextView = itemView.findViewById(R.id.eventLocationTextView)
@@ -27,8 +27,9 @@ class EventAdapter(private var events: List<Event>) :
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val itemView = LayoutInflater.from(parent.context).inflate(R.layout.item_event, parent, false)
         return ViewHolder(itemView)
-    }
+    }//poziva se samo jednom za svaku stavku
 
+    //poziva se svaki put kada viewholder treba da se popuni novim podacima
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val event = events[position]
         holder.eventTitle.text = event.eventType
@@ -45,13 +46,13 @@ class EventAdapter(private var events: List<Event>) :
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle database error here
+                // Obrada greške u vezi sa bazom podataka ovde
             }
         })
 
         holder.eventTime.text = "${event.date} ${event.time}"
         holder.itemView.setOnClickListener {
-            // Handle click event here, e.g., open EventDetailsActivity with the clicked event
+            // Obrada klika na elementu, npr. otvaranje EventDetailsActivity sa kliknutim događajem
             val intent = Intent(holder.itemView.context, EventDetailsActivity::class.java)
             intent.putExtra(EventDetailsActivity.EXTRA_EVENT, event)
             holder.itemView.context.startActivity(intent)

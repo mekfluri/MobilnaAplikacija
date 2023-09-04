@@ -26,9 +26,8 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator
 import com.prolificinteractive.materialcalendarview.DayViewFacade
 import java.text.SimpleDateFormat
 
-
 class UserScheduleFragment : Fragment() {
-    // Initialize variables
+    // Inicijalizacija promenljivih
     private lateinit var calendarView: MaterialCalendarView
     private lateinit var eventRecyclerView: RecyclerView
     private val eventList: MutableList<Event> = mutableListOf()
@@ -41,20 +40,20 @@ class UserScheduleFragment : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_user_schedule, container, false)
 
-        // Bind views
+        // Povezivanje pogleda
         calendarView = view.findViewById(R.id.calendarView)
         eventRecyclerView = view.findViewById(R.id.eventRecyclerView)
 
-        // Set up RecyclerView
+        // Postavljanje RecyclerView
         eventRecyclerView.layoutManager = LinearLayoutManager(context)
 
-        // For the demo, let's show events for the current date initially
-        val currentDate = Calendar.getInstance().time // Get the current date
+        // Za demonstraciju, prikaži događaje za trenutni datum
+        val currentDate = Calendar.getInstance().time // Dohvati trenutni datum
         val currentUser = FirebaseAuth.getInstance().currentUser
         val userId = currentUser?.uid
         if (userId != null) {
             fetchEventsForUser(userId)
-            // Set up a decorator to highlight the dates with events
+            // Postavljanje dekoratera za isticanje datuma sa događajima
 
             calendarView.addDecorator(object : DayViewDecorator {
                 override fun shouldDecorate(day: CalendarDay?): Boolean {
@@ -65,12 +64,12 @@ class UserScheduleFragment : Fragment() {
                 }
 
                 override fun decorate(view: DayViewFacade?) {
-                    // Customize how the dates with events should be decorated (e.g., change background color)
+                    // Prilagodite kako će biti dekorisani datumi sa događajima (npr. promenite boju pozadine)
                     view?.setBackgroundDrawable(resources.getDrawable(R.drawable.rounded_background))
                 }
             })
 
-// ...
+
 
         }
 
@@ -94,11 +93,11 @@ class UserScheduleFragment : Fragment() {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 eventList.clear()
 
-                // Iterate through the event IDs and fetch the event details from the "events" node
+                // Iteriraj kroz ID-jeve događaja i dohvati detalje događaja iz "events" čvora
                 for (eventSnapshot in dataSnapshot.children) {
                     val eventId = eventSnapshot.key
                     if (eventId != null) {
-                        // Fetch the event details from the "events" node using the eventId
+                        // Dohvati detalje događaja iz "events" čvora koristeći eventId
                         val eventsRef = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app")
                             .getReference("events")
                             .child(eventId)
@@ -109,30 +108,30 @@ class UserScheduleFragment : Fragment() {
                                 event?.let {
                                     eventList.add(it)
                                     eventAdapter?.notifyDataSetChanged()
-                                    Log.d("UserScheduleFragment", "Event fetched: ${event.eventType}, Date: ${event.date}, Time: ${event.time}")
+                                    Log.d("UserScheduleFragment", "Događaj dohvaćen: ${event.eventType}, Datum: ${event.date}, Vreme: ${event.time}")
                                 }
                             }
 
                             override fun onCancelled(databaseError: DatabaseError) {
-                                // Handle the error, if any.
-                                Toast.makeText(requireContext(), "Failed to fetch events", Toast.LENGTH_SHORT).show()
-                                Log.e("UserScheduleFragment", "Error fetching events: ${databaseError.message}")
+                                // Obradi grešku, ako se pojavi.
+                                Toast.makeText(requireContext(), "Nije uspelo dohvatanje događaja", Toast.LENGTH_SHORT).show()
+                                Log.e("UserScheduleFragment", "Greška pri dohvatanju događaja: ${databaseError.message}")
                             }
                         })
                     }
                 }
 
-                // Initialize the eventAdapter with the updated eventList
+                // Inicijalizuj eventAdapter sa ažuriranom eventList
                 eventAdapter = EventAdapter(eventList)
 
-                // Set the initialized eventAdapter to the RecyclerView
+                // Postavi inicijalizovani eventAdapter za RecyclerView
                 eventRecyclerView.adapter = eventAdapter
             }
 
             override fun onCancelled(databaseError: DatabaseError) {
-                // Handle the error, if any.
-                Toast.makeText(requireContext(), "Failed to fetch events", Toast.LENGTH_SHORT).show()
-                Log.e("UserScheduleFragment", "Error fetching events: ${databaseError.message}")
+                // Obradi grešku, ako se pojavi.
+                Toast.makeText(requireContext(), "Nije uspelo dohvatanje događaja", Toast.LENGTH_SHORT).show()
+                Log.e("UserScheduleFragment", "Greška pri dohvatanju događaja: ${databaseError.message}")
             }
         })
     }

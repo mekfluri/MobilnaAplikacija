@@ -26,13 +26,10 @@ class RankingActivity : AppCompatActivity() {
         appBarConfiguration = AppBarConfiguration(navController.graph)
         setupActionBarWithNavController(navController, appBarConfiguration)
 
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
+
     }
 
-    override fun onSupportNavigateUp(): Boolean {
+    override fun onSupportNavigateUp(): Boolean { //da se vratim na prethodni ekran
         val navController = findNavController(R.id.nav_host_fragment_content_ranking)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()

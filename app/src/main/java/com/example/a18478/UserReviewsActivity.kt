@@ -59,7 +59,7 @@ class UserReviewsActivity : AppCompatActivity() {
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle error
+
             }
         })
     }

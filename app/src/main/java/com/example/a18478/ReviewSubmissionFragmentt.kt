@@ -1,4 +1,5 @@
 package com.example.a18478
+
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -28,7 +29,6 @@ class ReviewSubmissionFragment : Fragment() {
             .child(eventId)
             .child("recenzije")
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -63,29 +63,30 @@ class ReviewSubmissionFragment : Fragment() {
                     reviewsRef.child(reviewId).setValue(review).await()
                     updatePointsAfterReview(userId)
 
-                    // Review submitted successfully
-                    Log.d("ReviewSubmissionFragment", "Review submitted successfully")
+                    // Recenzija uspešno poslata
+                    Log.d("ReviewSubmissionFragment", "Recenzija uspešno poslata")
 
-                    // Switch to the main (UI) thread to update the UI
+                    // Prebacivanje na glavnu (UI) nit za ažuriranje interfejsa
                     GlobalScope.launch(Dispatchers.Main) {
-                        // Optionally, you can show a success message or handle other actions
-                        // Refresh the event details screen to show the updated reviews
+
+                        // osvezenje ekrana sa detaljima događaja kako biste prikazali ažurirane recenzije
                         (activity as? EventDetailsActivity)?.displayEventDetails()
                     }
                     closeFragment()
 
                 } catch (e: Exception) {
-                    // Review submission failed
-                    Log.e("ReviewSubmissionFragment", "Failed to submit review", e)
-                    // You can handle the failure, show an error message, or log the error
+                    // Neuspešno slanje recenzije
+                    Log.e("ReviewSubmissionFragment", "Greška prilikom slanja recenzije", e)
+                    // Možete obraditi neuspeh, prikazati poruku o grešci ili zabeležiti grešku
                 }
             }
         } else {
-            // Invalid rating or empty comment
-            Log.e("ReviewSubmissionFragment", "Invalid rating or empty comment")
-            // You can display an error message to the user if required
+            // Nevalidna ocena ili prazan komentar
+            Log.e("ReviewSubmissionFragment", "Nevalidna ocena ili prazan komentar")
+            // Možete prikazati poruku o grešci korisniku ako je potrebno
         }
     }
+
     private fun updatePointsAfterReview(userId: String) {
         val userRef = FirebaseDatabase.getInstance("https://project-4778345136366669416-default-rtdb.europe-west1.firebasedatabase.app")
             .getReference("korisnici")
@@ -94,21 +95,21 @@ class ReviewSubmissionFragment : Fragment() {
         userRef.child("poeni").addListenerForSingleValueEvent(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val currentPoints = snapshot.getValue(Int::class.java) ?: 0
-                val newPoints = currentPoints + 1.5 // Adding 1.5 points for the review
+                val newPoints = currentPoints + 1.5 // Dodavanje 1.5 poena za recenziju
                 userRef.child("poeni").setValue(newPoints)
                     .addOnSuccessListener {
-                        // Points updated successfully
-                        Log.d("ReviewSubmissionFragment", "User points updated after review: $newPoints")
+                        // Poeni uspešno ažurirani
+                        Log.d("ReviewSubmissionFragment", "Poeni korisnika ažurirani nakon recenzije: $newPoints")
                     }
                     .addOnFailureListener {
-                        // Handle the error if updating points fails
-                        Log.e("ReviewSubmissionFragment", "Failed to update user points after review")
+                        // Obrada greške u slučaju neuspeha ažuriranja poena
+                        Log.e("ReviewSubmissionFragment", "Greška prilikom ažuriranja poena korisnika nakon recenzije")
                     }
             }
 
             override fun onCancelled(error: DatabaseError) {
-                // Handle the error if the database operation is canceled
-                Log.e("ReviewSubmissionFragment", "Error updating user points after review: ${error.message}")
+                // Obrada greške ako je operacija nad bazom podataka otkazana
+                Log.e("ReviewSubmissionFragment", "Greška prilikom ažuriranja poena korisnika nakon recenzije: ${error.message}")
             }
         })
     }
@@ -120,8 +121,8 @@ class ReviewSubmissionFragment : Fragment() {
             return fragment
         }
     }
+
     private fun closeFragment() {
         requireFragmentManager().beginTransaction().remove(this).commit()
     }
-
 }
